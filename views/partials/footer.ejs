@@ -572,15 +572,15 @@
     }));
 
     Alpine.data("kingsChatLogin", () => ({
-      redirectUrl: "/jobs", // Default redirect
-      setRedirect(url) {
-        this.redirectUrl = url;
-      },
+      // We no longer need the redirectUrl or setRedirect properties.
+
       handleLogin() {
         if (typeof kingsChatWebSdk === "undefined" || !kingsChatWebSdk) {
           alert("Error: KingsChat SDK is not available.");
           return;
         }
+
+        // IMPORTANT: Make sure this is your correct Client ID
         const KINGSCHAT_CLIENT_ID = "b2b522e9-d602-402d-b61d-8a50825862da";
         const loginOptions = {
           clientId: KINGSCHAT_CLIENT_ID,
@@ -594,25 +594,18 @@
             if (!accessToken) {
               throw new Error("SDK did not return an accessToken.");
             }
-
-            // THE FIX: Use the correct, full API endpoint path.
             return axios.post("/api/auth/kingschat/verify", {
               accessToken: accessToken,
             });
           })
           .then((serverResponse) => {
-            // THE FIX: After a successful login, simply reload the current page.
-            // The server will now have the session and render the correct view.
             console.log("Backend Response:", serverResponse.data);
             alert(`Welcome, ${serverResponse.data.user.firstName}!`);
 
-            // If we are on the create profile page, just reload it.
-            // Otherwise, go to the default redirect.
-            if (window.location.pathname.includes("/profile/create")) {
-              window.location.reload();
-            } else {
-              window.location.href = this.redirectUrl;
-            }
+            // --- THE PERMANENT FIX ---
+            // Simply reload the current page. The server will now have the
+            // user's session and will render the page in a "logged-in" state.
+            window.location.reload();
           })
           .catch((error) => {
             console.error("An error occurred during the login process:", error);
