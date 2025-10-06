@@ -1,0 +1,58 @@
+<!-- views/layouts/mainLayout.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('../partials/header') %>
+
+    <!-- DATA ISLAND for main pages -->
+    <script>
+      window.APP_DATA = {
+          user: <%- JSON.stringify(user || null) %>
+      };
+    </script>
+    <!-- ADD THE STRIPE.JS SCRIPT -->
+    <script src="https://js.stripe.com/v3/"></script>
+  </head>
+  <body>
+    <%- include('../partials/navbar') %>
+
+    <!-- 
+        This is the SINGLE, CORRECT place where the content from your
+        page files (like create-profile.ejs) will be injected.
+        There should be no other includes or body tags here.
+    -->
+    <%- body %> <%- include('../partials/footer') %>
+
+    <!-- =================================================== -->
+    <!-- NEW: Reusable Notification Modal                    -->
+    <!-- =================================================== -->
+    <div
+      x-data="notificationModal"
+      x-show="isOpen"
+      @keydown.escape.window="close()"
+      x-transition:enter="alpine-fade"
+      x-transition:leave="alpine-fade"
+      class="modal-backdrop"
+    >
+      <div class="modal-content" @click.outside="close()">
+        <h3 x-text="title"></h3>
+        <p x-text="message"></p>
+        <button @click="close()" class="modal-close-btn">Close</button>
+      </div>
+    </div>
+
+    <div
+      x-data="toast"
+      x-show="isVisible"
+      x-transition:enter-start="opacity-0 transform translate-x-full"
+      x-transition:enter-end="opacity-100 transform translate-x-0"
+      x-transition:leave-start="opacity-100 transform translate-x-0"
+      x-transition:leave-end="opacity-0 transform translate-x-full"
+      @click="close()"
+      class="toast-container"
+    >
+      <p x-text="message"></p>
+    </div>
+  </body>
+</html>

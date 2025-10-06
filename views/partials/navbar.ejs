@@ -1,0 +1,43 @@
+<!-- views/partials/navbar.ejs -->
+
+<!-- 
+    The navbar is now an Alpine.js component.
+    - x-data="navbar": Initializes the component.
+    - :class="{ 'menu-open': isMenuOpen }": Dynamically adds a class when the menu is open.
+-->
+<nav class="main-nav" x-data="navbar">
+  <div class="nav-header">
+    <div class="nav-brand">
+      <a href="/">Loveworld 4.0</a>
+    </div>
+
+    <!-- NEW: Hamburger Menu Toggle Button -->
+    <!-- This button will only be visible on mobile -->
+    <button class="nav-toggle" @click="toggleMenu()">
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+    </button>
+  </div>
+
+  <!-- NEW: Collapsible Menu Container -->
+  <!-- This div wraps all the links that will be hidden on mobile -->
+  <div class="nav-menu" x-show="isMenuOpen" x-transition>
+    <div class="nav-links">
+      <a href="/shop">Shop</a>
+      <a href="/jobs">Job Board</a>
+      <a href="/innovate">Innovate</a>
+    </div>
+    <div class="nav-user-actions">
+      <% if (user) { %>
+      <span class="nav-welcome">Welcome, <%= user.firstName %>!</span>
+      <a href="/profile/create" class="nav-profile-btn">My Profile</a>
+      <a href="/api/auth/logout" class="nav-logout-btn">Logout</a>
+      <% } else { %>
+      <div x-data="kingsChatLogin">
+        <a @click="handleLogin()" class="kc-web-sdk-btn-s"></a>
+      </div>
+      <% } %>
+    </div>
+  </div>
+</nav>

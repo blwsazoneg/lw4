@@ -1,0 +1,147 @@
+<% layout('layouts/mainLayout') %>
+
+<div x-data>
+  <a href="/cart" class="nav-cart-link">
+    <!-- SVG Cart Icon -->
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="9" cy="21" r="1"></circle>
+      <circle cx="20" cy="21" r="1"></circle>
+      <path
+        d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"
+      ></path>
+    </svg>
+    <!-- Dynamic counter from the global cart store -->
+    <span
+      x-show="$store.cart.count > 0"
+      x-text="$store.cart.count"
+      class="cart-count"
+    ></span>
+  </a>
+</div>
+
+
+<!-- Reusable Notification Modal -->
+<!-- <div
+  x-data="notificationModal"
+  x-show="isOpen"
+  @keydown.escape.window="close()"
+  x-transition
+  class="modal-backdrop"
+  style="display: none"
+>
+  <div class="modal-content" @click.outside="close()">
+    <h3 x-text="title"></h3>
+    <p x-text="message"></p>
+    <button @click="close()" class="modal-close-btn">Close</button>
+  </div>
+</div> -->
+
+<!-- Reusable Toast Notification Container -->
+<!-- <div
+  x-data="toast"
+  x-show="isVisible"
+  x-transition:enter-start="opacity-0 transform translate-x-full"
+  x-transition:enter-end="opacity-100 transform translate-x-0"
+  x-transition:leave-start="opacity-100 transform translate-x-0"
+  x-transition:leave-end="opacity-0 transform translate-x-full"
+  @click="close()"
+  class="toast-container"
+  style="display: none"
+>
+  <p x-text="message"></p>
+</div> -->
+
+<div class="container" x-data="shop" x-init="init()">
+  <div class="shop-header">
+    <h1>Our Products</h1>
+  </div>
+
+  <!-- NEW: Simplified Filter Controls -->
+  <div class="filter-controls">
+    <div class="form-group">
+      <label for="productSearch">Search by Product Name</label>
+      <input
+        type="text"
+        id="productSearch"
+        x-model="productSearch"
+        placeholder="e.g., Wireless Mouse"
+      />
+    </div>
+    <div class="form-group">
+      <label for="brandSearch">Search by Brand</label>
+      <input
+        type="text"
+        id="brandSearch"
+        x-model="brandSearch"
+        placeholder="e.g., Tech Gadgets Co."
+      />
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div x-show="isLoading" class="loading"><p>Loading products...</p></div>
+
+  <!-- Main Content -->
+  <div x-show="!isLoading">
+    <!-- Product Grid uses the 'filteredProducts' computed property -->
+    <div class="product-grid">
+      <template x-for="product in filteredProducts" :key="product.id">
+        <div class="product-card">
+          <a :href="`/products/${product.id}`" class="product-link">
+            <img
+              :src="product.image_url || '/images/placeholder.png'"
+              alt="Product Image"
+              class="product-image"
+            />
+          </a>
+          <div class="product-info">
+            <a :href="`/products/${product.id}`" class="product-link">
+              <p x-text="product.brand_name" class="product-brand"></p>
+              <h3 x-text="product.name" class="product-name"></h3>
+            </a>
+            <p x-text="formatCurrency(product.price)" class="product-price"></p>
+          </div>
+          <div class="product-actions">
+            <template x-if="!getCartItem(product.id)">
+              <button
+                @click="addToCart(product.id)"
+                class="add-to-cart-btn"
+                :disabled="isAddingToCart === product.id"
+              >
+                <span x-show="isAddingToCart !== product.id">Add to Cart</span>
+                <span x-show="isAddingToCart === product.id">Adding...</span>
+              </button>
+            </template>
+            <template x-if="getCartItem(product.id)">
+              <div class="quantity-stepper">
+                <button @click="updateQuantity(product.id, -1)">-</button>
+                <span x-text="getCartItem(product.id).quantity"></span>
+                <button @click="updateQuantity(product.id, 1)">+</button>
+              </div>
+            </template>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- No Results Message -->
+    <div x-show="filteredProducts.length === 0" class="no-results">
+      <p>No products found matching your search.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 
+    This page no longer needs a dedicated script block.
+    We will move the component definition back to the shared footer.
+-->

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>KingsChat SDK Isolation Test</title>
+    <!-- Load the official KingsChat stylesheet -->
+    <link rel="stylesheet" href="https://unpkg.com/kingschat-web-sdk/dist/stylesheets/style.min.css" />
+</head>
+<body style="background-color: #222; color: #fff; font-family: sans-serif; padding: 40px;">
+
+    <h1>KingsChat SDK Minimal Test</h1>
+    <p>This page has no connection to the Node.js backend. It only tests the frontend SDK.</p>
+    
+    <hr>
+
+    <!-- The KingsChat login button -->
+    <a id="kc-login-button" class="kc-web-sdk-btn">Test KingsChat Login</a>
+    
+    <hr>
+    
+    <h2>Logs:</h2>
+    <pre id="log-output" style="background-color: #000; padding: 15px; border-radius: 5px;"></pre>
+
+    <!-- 
+        =====================================================================
+        SCRIPTS
+        =====================================================================
+     -->
+
+    <!-- Load the KingsChat SDK library -->
+    <script src="https://unpkg.com/kingschat-web-sdk/dist/kingschat-web-sdk.min.js"></script>
+
+    <!-- Our minimal test script -->
+    <script>
+        const loginButton = document.getElementById('kc-login-button');
+        const logOutput = document.getElementById('log-output');
+
+        function log(message) {
+            console.log(message);
+            // Check if it's an object and stringify it for display
+            if (typeof message === 'object' && message !== null) {
+                logOutput.textContent += JSON.stringify(message, null, 2) + '\n';
+            } else {
+                logOutput.textContent += message + '\n';
+            }
+        }
+
+        // Check if the SDK loaded
+        if (typeof kingsChatWebSdk !== 'undefined') {
+            log('SUCCESS: kingsChatWebSdk object was found.');
+        } else {
+            log('FAILURE: kingsChatWebSdk object was NOT found.');
+        }
+
+        loginButton.addEventListener('click', () => {
+            log('Login button clicked. Calling kingsChatWebSdk.login()...');
+
+            // IMPORTANT: Use your exact Client ID here
+            const KINGSCHAT_CLIENT_ID = 'df4a6c96-2267-4256-a3cc-3c1bcc8c0ba'; 
+            
+            const loginOptions = {
+                clientId: KINGSCHAT_CLIENT_ID,
+                scopes: ['profile'] 
+            };
+
+            kingsChatWebSdk.login(loginOptions)
+                .then(response => {
+                    log('--- LOGIN SUCCESS ---');
+                    log('SDK Response:');
+                    log(response);
+                })
+                .catch(error => {
+                    log('--- LOGIN FAILED ---');
+                    log('SDK Error Object:');
+                    log(error);
+                });
+        });
+    </script>
+
+</body>
+</html>

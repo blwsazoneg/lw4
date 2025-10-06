@@ -1,0 +1,213 @@
+# Create Innovation
+POST http://localhost:3000/api/innovations
+Content-Type: application/json
+
+{
+  "title": "Innovative Recycling Solution",
+  "submission_text": "A new method to recycle plastic waste efficiently.",
+  "user_id": 1
+}
+
+### Get All Innovations
+GET http://localhost:3000/api/innovations
+
+### Get Innovation by ID
+GET http://localhost:3000/api/innovations/1
+
+### Create Company
+POST http://localhost:3000/api/companies
+Content-Type: application/json
+
+{
+  "name": "Tech Innovators",
+  "description": "A leading company in tech innovations.",
+  "website": "https://techinnovators.com"
+}
+
+### Create another Company
+POST http://localhost:3000/api/companies
+Content-Type: application/json
+
+{
+  "name": "Innovative Solutions",
+  "description": "A company focused on innovative tech solutions.",
+  "website": "https://innovativesolutions.com"
+}
+
+### Get All Companies
+GET http://localhost:3000/api/companies
+
+### Create Job for Company ID 1
+POST http://localhost:3000/api/jobs
+Content-Type: application/json
+
+{
+  "title": "Software Engineer",
+  "description": "Develop and maintain web applications.",
+  "location": "Remote",
+  "tags": ["JavaScript", "React", "Node.js"],
+  "company_id": 1
+}
+
+### Create Job for Company ID 2
+POST http://localhost:3000/api/jobs
+Content-Type: application/json
+
+{
+  "title": "Product Manager",
+  "description": "Lead the product development team.",
+  "location": "On-site",
+  "tags": ["Leadership", "Product Management"],
+  "company_id": 2
+}
+
+### Get All Jobs
+GET http://localhost:3000/api/jobs
+
+### Get Job by ID
+GET http://localhost:3000/api/jobs/1
+
+### Apply for a job (User ID 1 applying for Job ID 1)
+POST http://localhost:3000/api/applications
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "job_id": 1
+}
+
+### Apply for a job (User ID 1 applying for Job ID 2)
+POST http://localhost:3000/api/applications
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "job_id": 2
+}
+
+### Apply for same job
+POST http://localhost:3000/api/applications
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "job_id": 1
+}
+
+### Get all applications for a specific job (Job ID 1)
+GET http://localhost:3000/api/applications/job/1
+
+### Get all applications for a specific user (User ID 1)
+GET http://localhost:3000/api/applications/user/1
+
+### =================================================================
+### E-COMMERCE API TESTING
+### =================================================================
+
+### Part 1: ADMIN - Create Brands and Products
+# NOTE: Ensure you have logged in as an ADMIN user before running these.
+
+### Create a new Brand
+POST http://localhost:3000/api/brands
+Content-Type: application/json
+Cookie: connect.sid=s%3AXTfWB-T7zowT6jf4kUpoxhXRY6aRyLlb.mp0rGg1GrQr1idzwin0xek0nu2zfSmCPakK5hZ8IMdM
+
+{
+    "name": "Tech Gadgets Co."
+}
+
+### Create Product 1 (e.g., a mouse)
+# Make sure the brand_id (e.g., 3) matches the ID of the brand you just created.
+POST http://localhost:3000/api/products
+Content-Type: application/json
+Cookie: connect.sid=s%3AXTfWB-T7zowT6jf4kUpoxhXRY6aRyLlb.mp0rGg1GrQr1idzwin0xek0nu2zfSmCPakK5hZ8IMdM
+
+{
+    "name": "Ergonomic Wireless Mouse",
+    "description": "A comfortable and responsive wireless mouse for all-day use.",
+    "price": 49.99,
+    "stock_quantity": 50,
+    "image_url": "/images/mouse.jpg",
+    "brand_id": 1
+}
+
+### Create Product 2 (e.g., a keyboard)
+POST http://localhost:3000/api/products
+Content-Type: application/json
+Cookie: connect.sid=s%3AXTfWB-T7zowT6jf4kUpoxhXRY6aRyLlb.mp0rGg1GrQr1idzwin0xek0nu2zfSmCPakK5hZ8IMdM
+
+{
+    "name": "Mechanical Gaming Keyboard",
+    "description": "RGB backlit mechanical keyboard with tactile switches.",
+    "price": 119.99,
+    "stock_quantity": 25,
+    "image_url": "/images/keyboard.jpg",
+    "brand_id": 1
+}
+
+
+### =================================================================
+### Part 2: USER - Shopping Flow
+# NOTE: Log in as a REGULAR user now. Your session cookie will change.
+
+### View all available products (Public endpoint)
+GET http://localhost:3000/api/products
+
+
+### Add 2 mice to the cart (Product ID 1)
+# You can get product IDs from the GET request above.
+POST http://localhost:3000/api/cart/items
+Content-Type: application/json
+Cookie: connect.sid=s%3AXTfWB-T7zowT6jf4kUpoxhXRY6aRyLlb.mp0rGg1GrQr1idzwin0xek0nu2zfSmCPakK5hZ8IMdM
+
+{
+    "productId": 5,
+    "quantity": 22
+}
+
+
+### Add 1 keyboard to the cart (Product ID 2)
+POST http://localhost:3000/api/cart/items
+Content-Type: application/json
+Cookie: connect.sid=s%3AXTfWB-T7zowT6jf4kUpoxhXRY6aRyLlb.mp0rGg1GrQr1idzwin0xek0nu2zfSmCPakK5hZ8IMdM
+
+{
+    "productId": 2,
+    "quantity": 1
+}
+
+
+### View the contents of the cart
+GET http://localhost:3000/api/cart
+Cookie: connect.sid=s%3AXTfWB-T7zowT6jf4kUpoxhXRY6aRyLlb.mp0rGg1GrQr1idzwin0xek0nu2zfSmCPakK5hZ8IMdM
+
+
+### User changes their mind, removes the mice (Product ID 1)
+DELETE http://localhost:3000/api/cart/items/2
+Cookie: connect.sid=s%3AXTfWB-T7zowT6jf4kUpoxhXRY6aRyLlb.mp0rGg1GrQr1idzwin0xek0nu2zfSmCPakK5hZ8IMdM
+
+
+### View the cart again to confirm removal
+GET http://localhost:3000/api/cart
+Cookie: connect.sid=s%3AXTfWB-T7zowT6jf4kUpoxhXRY6aRyLlb.mp0rGg1GrQr1idzwin0xek0nu2zfSmCPakK5hZ8IMdM
+
+
+### =================================================================
+### Part 3: USER - Checkout and Order History
+
+### Proceed to checkout
+# This will convert the final cart contents into a permanent order.
+POST http://localhost:3000/api/orders/checkout
+Cookie: connect.sid=s%3AXTfWB-T7zowT6jf4kUpoxhXRY6aRyLlb.mp0rGg1GrQr1idzwin0xek0nu2zfSmCPakK5hZ8IMdM
+
+
+### View the user's order history
+# You should see the new order for one keyboard.
+GET http://localhost:3000/api/orders
+Cookie: connect.sid=s%3AXTfWB-T7zowT6jf4kUpoxhXRY6aRyLlb.mp0rGg1GrQr1idzwin0xek0nu2zfSmCPakK5hZ8IMdM
+
+
+### (Optional) Check Product Stock
+# After checkout, the stock for the keyboard (Product ID 2) should have decreased by 1.
+# Go to pgAdmin and run: SELECT name, stock_quantity FROM products WHERE id = 2;
+# The stock should now be 24 instead of 25.

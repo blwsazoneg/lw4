@@ -1,0 +1,50 @@
+{
+  "name": "",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "license": "AGPL-version-3.0",
+  "private": false,
+  "engines": {
+    "node": ">= 14.0.0",
+    "npm": ">= 6.0.0"
+  },
+  "homepage": "",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "bugs": "",
+  "keywords": [],
+  "author": {
+    "name": "",
+    "email": "",
+    "url": ""
+  },
+  "contributors": [],
+  "scripts": {
+    "dev": "node app.js",
+    "test": "nodemon app.js",
+    "build:sdk": "browserify src/build/kingschat-importer.cjs -o public/libs/kingschat-bundle.js",
+    "promote-user": "node scripts/promote-user.cjs"
+  },
+  "dependencies": {
+    "alpinejs": "^3.15.0",
+    "axios": "^1.12.2",
+    "connect-pg-simple": "^10.0.0",
+    "dotenv": "^17.2.3",
+    "ejs": "^3.1.10",
+    "ejs-mate": "^4.0.0",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "kingschat-web-sdk": "^0.1.0",
+    "multer": "^2.0.2",
+    "pg": "^8.16.3",
+    "stripe": "^19.1.0"
+  },
+  "devDependencies": {
+    "browserify": "^17.0.1",
+    "nodemon": "^3.1.10"
+  }
+}

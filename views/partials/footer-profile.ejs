@@ -1,0 +1,178 @@
+<!-- views/partials/footer-profile.ejs -->
+
+<!-- Load library scripts -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="/libs/kingschat-bundle.js"></script>
+<script
+  src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+  defer
+></script>
+
+<!-- 
+    This inline script contains ALL the logic needed for the create-profile page.
+    It has no dependency on any other component definitions.
+-->
+<script>
+  document.addEventListener("alpine:init", () => {
+    // --- Reusable Notification Store ---
+    if (!Alpine.store("notifications")) {
+      Alpine.store("notifications", {
+        isOpen: false,
+        title: "",
+        message: "",
+        show(title, message) {
+          this.title = title;
+          this.message = message;
+          this.isOpen = true;
+        },
+        close() {
+          this.isOpen = false;
+        },
+      });
+    }
+
+    // --- Reusable Modal Component ---
+    Alpine.data("notificationModal", () => ({
+      get isOpen() {
+        return Alpine.store("notifications").isOpen;
+      },
+      get title() {
+        return Alpine.store("notifications").title;
+      },
+      get message() {
+        return Alpine.store("notifications").message;
+      },
+      close() {
+        Alpine.store("notifications").close();
+      },
+    }));
+
+    // --- THE SELF-CONTAINED PROFILE CREATOR COMPONENT ---
+    Alpine.data("profileCreator", (user) => ({
+      user: user,
+      isLoggedIn: user && user.id,
+      profileExists: false,
+      formData: {
+        headline: "",
+        bio: "",
+        skills: [],
+        portfolio_url: "",
+        linkedin_url: "",
+        age: "",
+        field_of_study: "",
+        zone: "",
+        church: "",
+        ministry_position: "",
+      },
+      skillsInput: "",
+      isSaving: false,
+
+      formatBirthDate(millis) {
+        if (!millis) {
+          return "Not provided";
+        }
+        const date = new Date(Number(millis));
+        return new Intl.DateTimeFormat("en-GB", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }).format(date);
+      },
+
+      get pageTitle() {
+        return this.profileExists
+          ? "Edit Your Professional Profile"
+          : "Create Your Professional Profile";
+      },
+      get submitButtonText() {
+        return this.profileExists ? "Update Profile" : "Create My Profile";
+      },
+
+      init() {
+        if (this.isLoggedIn) {
+          axios.get("/api/profile/me").then((response) => {
+            if (response.data) {
+              this.profileExists = true;
+              this.formData = { ...this.formData, ...response.data };
+              this.skillsInput = this.formData.skills
+                ? this.formData.skills.join(", ")
+                : "";
+            }
+          });
+        }
+      },
+      saveProfile() {
+        this.isSaving = true;
+        this.formData.skills = this.skillsInput
+          .split(",")
+          .map((s) => s.trim())
+          .filter((s) => s);
+
+        axios
+          .post("/api/profile", this.formData)
+          .then((response) => {
+            this.profileExists = true;
+            Alpine.store("notifications").show(
+              "Profile Saved!",
+              "Your profile has been successfully saved."
+            );
+          })
+          .catch((error) => {
+            Alpine.store("notifications").show(
+              "Error",
+              "There was a problem saving your profile."
+            );
+          })
+          .finally(() => {
+            this.isSaving = false;
+          });
+      },
+      handleLogin() {
+        if (typeof kingsChatWebSdk === "undefined") {
+          alert("Error: KingsChat SDK is not available.");
+          return;
+        }
+        const KINGSCHAT_CLIENT_ID = "b2b522e9-d602-402d-b61d-8a50825862da";
+        const loginOptions = {
+          clientId: KINGSCHAT_CLIENT_ID,
+          scopes: ["profile"],
+        };
+
+        kingsChatWebSdk
+          .login(loginOptions)
+          .then((response) => {
+            if (!response || !response.accessToken) {
+              throw new Error("SDK did not return an accessToken.");
+            }
+            return axios.post("/api/auth/kingschat/verify", {
+              accessToken: response.accessToken,
+            });
+          })
+          .then((serverResponse) => {
+            // On successful login, just reload the page.
+            window.location.reload();
+          })
+          .catch((error) => {
+            console.error("An error occurred during the login process:", error);
+            alert("Login failed. Please check the console for details.");
+          });
+      },
+    }));
+  });
+</script>
+
+<!-- ADDING THE MODAL HTML DIRECTLY HERE FOR ISOLATION -->
+<div
+  x-data="notificationModal"
+  x-show="isOpen"
+  @keydown.escape.window="close()"
+  x-transition
+  class="modal-backdrop"
+  style="display: none"
+>
+  <div class="modal-content" @click.outside="close()">
+    <h3 x-text="title"></h3>
+    <p x-text="message"></p>
+    <button @click="close()" class="modal-close-btn">Close</button>
+  </div>
+</div>

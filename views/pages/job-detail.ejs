@@ -1,0 +1,54 @@
+<% layout('layouts/mainLayout') %>
+
+<!-- 
+    We create the component and pass the jobId from our server.
+    We also pass the logged-in user data for the "Apply" button logic.
+-->
+<div
+  class="container"
+  x-data="jobDetail(<%= jobId %>, APP_DATA.user)"
+  x-init="fetchJob()"
+>
+  <!-- Loading State -->
+  <div x-show="isLoading" class="loading"><p>Loading job details...</p></div>
+
+  <!-- Error State -->
+  <div x-show="error" class="error-message">
+    <p x-text="error"></p>
+  </div>
+
+  <!-- Main Job Content (show when not loading and no errors) -->
+  <div x-show="!isLoading && job">
+    <div class="job-detail-header">
+      <h1 x-text="job.title"></h1>
+      <h2 x-text="job.company_name"></h2>
+      <p class="job-location" x-text="job.location"></p>
+    </div>
+
+    <div class="job-detail-body">
+      <h3>Job Description</h3>
+      <!-- Use x-html to render any HTML formatting that might be in the description -->
+      <div x-html="job.description"></div>
+    </div>
+
+    <div class="job-tags">
+      <template x-for="tag in job.tags" :key="tag">
+        <span class="job-tag" x-text="tag"></span>
+      </template>
+    </div>
+
+    <hr />
+
+    <div class="job-actions">
+      <button
+        @click="handleApply()"
+        class="job-apply-btn"
+        :disabled="isApplying || hasApplied"
+      >
+        <span x-show="isApplying">Applying...</span>
+        <span x-show="!isApplying && !hasApplied">Apply for this Role</span>
+        <span x-show="hasApplied">You have already applied</span>
+      </button>
+    </div>
+  </div>
+</div>

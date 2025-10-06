@@ -1,0 +1,87 @@
+<% layout('layouts/mainLayout') %>
+<div x-data>
+  <!-- We will make the link point to a future /cart page -->
+  <a href="/cart" class="nav-cart-link">
+    <!-- 
+            SVG Cart Icon - A simple, clean icon.
+            You can find many free SVG icons online to customize this.
+        -->
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="9" cy="21" r="1"></circle>
+      <circle cx="20" cy="21" r="1"></circle>
+      <path
+        d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"
+      ></path>
+    </svg>
+
+    <!-- The dynamic counter remains the same -->
+    <span
+      x-show="$store.cart.count > 0"
+      x-text="$store.cart.count"
+      class="cart-count"
+    ></span>
+  </a>
+</div>
+
+<!-- Pass the productId from the server into our Alpine component -->
+<div class="container" x-data="productDetail(<%= productId %>)" x-init="init()">
+  <!-- Loading State -->
+  <div x-show="isLoading" class="loading"><p>Loading product...</p></div>
+
+  <!-- Error State -->
+  <div x-show="error" class="error-message"><p x-text="error"></p></div>
+
+  <!-- Main Product Content -->
+  <div x-show="!isLoading && product" class="product-detail-grid">
+    <!-- Column 1: Product Image -->
+    <div class="product-detail-image">
+      <img
+        :src="product.image_url || '/images/placeholder.png'"
+        :alt="product.name"
+      />
+    </div>
+
+    <!-- Column 2: Product Info & Actions -->
+    <div class="product-detail-info">
+      <p x-text="product.brand_name" class="product-brand"></p>
+      <h1 x-text="product.name"></h1>
+      <p x-text="formatCurrency(product.price)" class="product-price-large"></p>
+
+      <div class="product-description" x-html="product.description"></div>
+
+      <!-- Dynamic "Add to Cart" / Quantity Stepper -->
+      <div class="product-actions-detail">
+        <!-- Show "Add to Cart" if item is not in cart -->
+        <template x-if="!getCartItem(product.id)">
+          <button
+            @click="addToCart(product.id)"
+            class="add-to-cart-btn-large"
+            :disabled="isAddingToCart"
+          >
+            <span x-show="!isAddingToCart">Add to Cart</span>
+            <span x-show="isAddingToCart">Adding...</span>
+          </button>
+        </template>
+
+        <!-- Show Quantity Stepper if item IS in cart -->
+        <template x-if="getCartItem(product.id)">
+          <div class="quantity-stepper large">
+            <button @click="updateQuantity(product.id, -1)">-</button>
+            <span x-text="getCartItem(product.id).quantity"></span>
+            <button @click="updateQuantity(product.id, 1)">+</button>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</div>

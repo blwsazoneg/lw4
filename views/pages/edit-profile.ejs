@@ -1,0 +1,85 @@
+<% layout('layouts/mainLayout') %>
+
+<div class="container" x-data="profileEditor" x-init="loadProfile()">
+  <h1>Edit Your Professional Profile</h1>
+
+  <!-- Loading State -->
+  <div x-show="isLoading" class="loading"><p>Loading your profile...</p></div>
+
+  <!-- Main Form Content (show when not loading) -->
+  <div x-show="!isLoading">
+    <!-- 
+            The form submission is handled by Alpine.
+            @submit.prevent stops the default browser form submission.
+            Instead, it calls our 'saveProfile' method.
+        -->
+    <form @submit.prevent="saveProfile" class="profile-form">
+      <div class="form-group">
+        <label for="headline">Headline</label>
+        <input
+          type="text"
+          id="headline"
+          x-model="formData.headline"
+          placeholder="e.g., Full Stack Web Developer"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="bio">Biography</label>
+        <textarea
+          id="bio"
+          x-model="formData.bio"
+          rows="5"
+          placeholder="Tell us a little about yourself..."
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="skills">Skills (comma-separated)</label>
+        <input
+          type="text"
+          id="skills"
+          x-model="skillsInput"
+          placeholder="e.g., JavaScript, Node.js, React"
+        />
+        <small>Enter your skills separated by commas.</small>
+      </div>
+
+      <div class="form-group">
+        <label for="portfolio">Portfolio URL</label>
+        <input
+          type="url"
+          id="portfolio"
+          x-model="formData.portfolio_url"
+          placeholder="https://your-portfolio.com"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="linkedin">LinkedIn URL</label>
+        <input
+          type="url"
+          id="linkedin"
+          x-model="formData.linkedin_url"
+          placeholder="https://linkedin.com/in/your-profile"
+        />
+      </div>
+
+      <div class="form-actions">
+        <!-- Disable button while saving to prevent multiple submissions -->
+        <button type="submit" :disabled="isSaving">
+          <span x-show="!isSaving">Save Profile</span>
+          <span x-show="isSaving">Saving...</span>
+        </button>
+      </div>
+    </form>
+
+    <!-- Success/Error Messages -->
+    <div
+      x-show="message"
+      x-text="message"
+      :class="isError ? 'error-message' : 'success-message'"
+      x-transition
+    ></div>
+  </div>
+</div>

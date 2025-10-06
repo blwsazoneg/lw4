@@ -1,0 +1,29 @@
+<!-- views/layouts/splashLayout.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('../partials/header') %>
+    <style>
+      .alpine-fade {
+        transition: opacity 0.8s ease-in-out;
+      }
+    </style>
+
+    <!-- DATA ISLAND for the splash page -->
+    <script>
+      window.APP_DATA = {
+          user: <%- JSON.stringify(user || null) %>
+      };
+    </script>
+  </head>
+  <body>
+    
+    <!-- 
+        This is the SINGLE, CORRECT place where the content from 
+        home.ejs will be injected.
+        There should be no other includes or body tags here.
+    -->
+    <%- body %> <%- include('../partials/footer') %>
+  </body>
+</html>

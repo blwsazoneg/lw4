@@ -1,0 +1,40 @@
+<% layout('layouts/splashLayout') %>
+
+<!--
+    The x-data attribute is now clean.
+    It calls our 'cinema' component and passes the user data
+    from the global 'APP_DATA' variable we created in the layout.
+-->
+<div
+  x-data="cinema(APP_DATA.user)"
+  x-init="startSequence()"
+  class="cinema-container"
+>
+  <!-- Message 1: "Welcome to..." -->
+  <div x-show="step === 1" class="alpine-fade cinema-message">
+    <h1>Welcome to Loveworld 4.0</h1>
+  </div>
+
+  <!-- Message 2: "Browse through..." (Implicitly encouraging) -->
+  <div x-show="step === 2" class="alpine-fade cinema-message">
+    <h2>Discover. Connect. Innovate.</h2>
+  </div>
+
+  <!-- Final Buttons -->
+  <div
+    x-show="step === 3"
+    x-transition:enter="alpine-fade"
+    class="feature-buttons"
+  >
+    <a href="/shop" class="feature-btn">Made in Loveworld</a>
+
+    <a
+      href="/profile/new" class="feature-btn"
+    >
+      Customize Your Professional Profile
+    </a>
+
+    <a href="/jobs" class="feature-btn">Work at a Loveworld SBO</a>
+    <a href="/innovate" class="feature-btn">Innovate</a>
+  </div>
+</div>

@@ -1,0 +1,72 @@
+<% layout('layouts/mainLayout') %>
+
+<div class="container" x-data="jobBoard(APP_DATA.user)" x-init="fetchJobs()">
+  <h1>Work at an SBO</h1>
+  <p class="subtitle">
+    Browse and apply for opportunities that match your skills and passion.
+  </p>
+
+  <!-- Search and Filter Controls -->
+  <div class="filter-controls">
+    <div class="form-group">
+      <label for="search">Search by Role or Organization</label>
+      <input
+        type="text"
+        id="search"
+        x-model="searchQuery"
+        placeholder="e.g., developer, Innovate Inc."
+      />
+    </div>
+    <div class="form-group">
+      <label for="tags">Filter by Tag</label>
+      <input
+        type="text"
+        id="tags"
+        x-model="tagQuery"
+        placeholder="e.g., admin, dev, soft"
+      />
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div x-show="isLoading" class="loading">
+    <p>Loading job opportunities...</p>
+  </div>
+
+  <!-- Main Job Listings -->
+  <div x-show="!isLoading">
+    <!-- Loop through the 'filteredJobs' computed property -->
+    <div class="job-listings">
+      <template x-for="job in filteredJobs" :key="job.id">
+        <div class="job-card">
+          <h3 class="job-title" x-text="job.title"></h3>
+          <p class="job-company" x-text="job.company_name"></p>
+          <p class="job-location" x-text="job.location"></p>
+
+          <!-- Display Tags -->
+          <div class="job-tags">
+            <template x-for="tag in job.tags" :key="tag">
+              <span class="job-tag" x-text="tag"></span>
+            </template>
+          </div>
+
+          <div class="job-actions">
+            <!-- We will link this to a future single job page -->
+            <a
+              href="#"
+              @click.prevent="handleViewAndApply(job.id)"
+              class="job-apply-btn"
+            >
+              View & Apply
+            </a>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- Message if no jobs match the filter -->
+    <div x-show="filteredJobs.length === 0" class="no-results">
+      <p>No jobs found matching your criteria.</p>
+    </div>
+  </div>
+</div>
