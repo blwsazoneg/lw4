@@ -26,7 +26,7 @@
   "scripts": {
     "dev": "node app.js",
     "test": "nodemon app.js",
-    "build:sdk": "browserify src/build/kingschat-importer.cjs -o public/libs/kingschat-bundle.js",
+    "build-sdk": "browserify src/build/kingschat-importer.cjs -o public/libs/kingschat-bundle.js",
     "promote-user": "node scripts/promote-user.cjs"
   },
   "dependencies": {
