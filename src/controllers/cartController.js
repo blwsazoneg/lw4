@@ -20,9 +20,19 @@ export const getCart = async (req, res) => {
   const userId = req.session.user.id;
   try {
     const cart = await getOrCreateCart(userId);
-    // We no longer need GROUP BY because our addItemToCart logic is now correct.
+    // THE FIX: Use a CASE statement in SQL to select the correct price.
     const query = `
-            SELECT ci.product_id, p.name, p.price, ci.quantity, p.image_url
+            SELECT 
+                ci.product_id, 
+                p.name, 
+                -- This CASE statement is the key:
+                -- IF discount_price is valid, use it. ELSE, use the regular price.
+                CASE
+                    WHEN p.discount_price IS NOT NULL AND p.discount_price < p.price THEN p.discount_price
+                    ELSE p.price
+                END AS price, -- The price is now either the discount or regular price
+                ci.quantity,
+                p.image_url
             FROM cart_items ci
             JOIN products p ON ci.product_id = p.id
             WHERE ci.cart_id = $1;

@@ -1,0 +1,73 @@
+<% layout('/layouts/app-layout') %>
+
+<div class="container mt-4" x-data="userList" x-init="init()">
+    <header class="mb-4">
+        <h1 class="h2">Manage Users</h1>
+    </header>
+
+    <!-- User Stats Cards -->
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4 mb-4">
+        <div class="col"><div class="card card-body text-center shadow-sm"><h6 class="text-muted mb-1">Total Users</h6><p class="h4 mb-0" x-text="counts.total"></p></div></div>
+        <div class="col"><div class="card card-body text-center shadow-sm"><h6 class="text-muted mb-1">Admins</h6><p class="h4 mb-0" x-text="counts.admins"></p></div></div>
+        <div class="col"><div class="card card-body text-center shadow-sm"><h6 class="text-muted mb-1">Employers</h6><p class="h4 mb-0" x-text="counts.employers"></p></div></div>
+        <div class="col"><div class="card card-body text-center shadow-sm"><h6 class="text-muted mb-1">Regular Users</h6><p class="h4 mb-0" x-text="counts.users"></p></div></div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="card card-body bg-light mb-4">
+        <div class="form-group">
+            <label for="search" class="form-label">Search by Name or Email</label>
+            <input type="text" id="search" class="form-control" x-model.debounce.500ms="searchQuery" placeholder="e.g., John Doe...">
+        </div>
+    </div>
+
+    <div x-show="isLoading" class="text-center p-5">
+        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>
+
+    <div x-show="!isLoading">
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Joined On</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="user in users" :key="user.id">
+                                <tr>
+                                    <td x-text="user.id"></td>
+                                    <td class="fw-bold" x-text="`${user.first_name} ${user.last_name}`"></td>
+                                    <td class="text-muted" x-text="user.email"></td>
+                                    <td>
+                                        <select class="form-select form-select-sm w-auto" x-model="user.role" @change="updateRole(user.id, $event.target.value)">
+                                            <option value="user">User</option>
+                                            <option value="employer">Employer</option>
+                                            <option value="admin">Admin</option>
+                                        </select>
+                                    </td>
+                                    <td class="text-muted" x-text="formatDate(user.created_at)"></td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <nav x-show="pagination.totalPages > 1" class="mt-4 d-flex justify-content-center">
+            <ul class="pagination">
+                <li class="page-item" :class="{ 'disabled': pagination.currentPage <= 1 }"><a class="page-link" href="#" @click.prevent="changePage(pagination.currentPage - 1)">Previous</a></li>
+                <li class="page-item active"><a class="page-link" href="#" x-text="pagination.currentPage"></a></li>
+                <li class="page-item" :class="{ 'disabled': pagination.currentPage >= pagination.totalPages }"><a class="page-link" href="#" @click.prevent="changePage(pagination.currentPage + 1)">Next</a></li>
+            </ul>
+        </nav>
+    </div>
+</div>

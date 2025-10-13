@@ -1,0 +1,51 @@
+<% layout('/layouts/app-layout') %>
+
+<div class="container mt-4" x-data="innovationList" x-init="init()">
+    <header class="mb-4">
+        <h1 class="h2">Manage Innovations</h1>
+        <p class="lead text-muted">Review ideas and innovations submitted by users across the platform.</p>
+    </header>
+
+    <div x-show="isLoading" class="text-center p-5">
+        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>
+
+    <div x-show="!isLoading">
+        <template x-if="innovations.length === 0">
+            <div class="alert alert-info">No innovations have been submitted yet.</div>
+        </template>
+
+        <template x-if="innovations.length > 0">
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Title</th>
+                                    <th>Submitted By</th>
+                                    <th>Date Submitted</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-for="innovation in innovations" :key="innovation.id">
+                                    <tr>
+                                        <td x-text="innovation.id"></td>
+                                        <td class="fw-bold" x-text="innovation.title"></td>
+                                        <td class="text-muted" x-text="innovation.first_name ? `${innovation.first_name} ${innovation.last_name}` : 'N/A'"></td>
+                                        <td class="text-muted" x-text="formatDate(innovation.submitted_at)"></td>
+                                        <td class="text-end">
+                                            <a :href="`/admin/innovations/${innovation.id}`" class="btn btn-sm btn-outline-primary">View Details</a>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
+</div>

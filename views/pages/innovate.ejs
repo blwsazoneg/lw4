@@ -1,125 +1,54 @@
-<% layout('layouts/mainLayout') %>
+<% layout('layouts/app-layout') %>
 
-<!-- THE FIX: The component now reads from the global APP_DATA object -->
-<div class="container" x-data="innovationForm(APP_DATA.user)">
-  <h1>Submit Your Idea or Innovation</h1>
+<div class="container mt-4" x-data="innovationForm(APP_DATA.user)">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <header class="mb-4 text-center">
+                <h1 class="h2">Submit Your Idea or Innovation</h1>
+                <p class="lead text-muted">Share your concepts for new projects, improvements, or ministry-focused initiatives.</p>
+            </header>
 
-  <!-- STATE 1: User is NOT logged in -->
-  <template x-if="!isLoggedIn">
-    <div class="start-profile-box">
-      <h2>Please Log In</h2>
-      <p>
-        You must be logged in to submit an idea. Please connect with your
-        KingsChat account to continue.
-      </p>
-      <div x-data="kingsChatLogin" x-init="setRedirect('/innovate')">
-        <a @click="handleLogin()" class="kc-web-sdk-btn"
-          >Connect with KingsChat</a
-        >
-      </div>
+            <template x-if="!isLoggedIn">
+                <div class="card card-body bg-light text-center p-4 p-md-5">
+                    <h2>Please Log In</h2>
+                    <p>You must be logged in to submit an idea. Please connect with your KingsChat account to continue.</p>
+                    <div x-data="kingsChatLogin" x-init="setRedirect('/innovate')">
+                         <a @click="handleLogin()" class="btn btn-primary btn-lg">Connect with KingsChat</a>
+                    </div>
+                </div>
+            </template>
+
+            <template x-if="isLoggedIn">
+                <div class="card card-body">
+                    <form @submit.prevent="submitIdea" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Title of Your Idea</label>
+                            <input type="text" id="title" class="form-control" x-model="formData.title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="submission_text" class="form-label">Describe Your Idea</label>
+                            <textarea id="submission_text" class="form-control" x-model="formData.submission_text" rows="8" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="ministry_position" class="form-label">Relevant Ministry Position (Optional)</label>
+                            <select id="ministry_position" class="form-select" x-model="formData.ministry_position"><option value="">-- Select --</option><option>Pastor</option><option>Deacon/Deaconess</option><option>Cell Leader</option><option>PCF Leader</option><option>Church Staff</option><option>Usher</option><option>Chorister</option><option>Member</option></select>
+                        </div>
+                        <hr class="my-4">
+                        <h5>Optional Attachments</h5>
+                        <div class="row g-3">
+                            <div class="col-md-4"><label for="document" class="form-label">Document</label><input type="file" id="document" class="form-control" x-ref="documentInput" accept=".pdf,.doc,.docx"></div>
+                            <div class="col-md-4"><label for="photos" class="form-label">Photos</label><input type="file" id="photos" class="form-control" x-ref="photosInput" accept="image/*" multiple></div>
+                            <div class="col-md-4"><label for="video" class="form-label">Video</label><input type="file" id="video" class="form-control" x-ref="videoInput" accept="video/*"></div>
+                        </div>
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
+                                <span x-show="!isSubmitting">Submit Idea</span>
+                                <span x-show="isSubmitting" class="spinner-border spinner-border-sm"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </template>
+        </div>
     </div>
-  </template>
-
-  <!-- STATE 2: User IS logged in, show the form -->
-  <template x-if="isLoggedIn">
-    <div>
-      <p class="subtitle">
-        Share your concepts for new projects, improvements, or ministry-focused
-        initiatives.
-      </p>
-      <form
-        @submit.prevent="submitIdea"
-        class="profile-form"
-        enctype="multipart/form-data"
-      >
-        <div class="form-group">
-          <label for="title">Title of Your Idea</label>
-          <input
-            type="text"
-            id="title"
-            x-model="formData.title"
-            placeholder="A brief, catchy title"
-            required
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="submission_text">Describe Your Idea</label>
-          <textarea
-            id="submission_text"
-            x-model="formData.submission_text"
-            rows="8"
-            placeholder="Explain your idea in detail. What problem does it solve? How does it work?"
-            required
-          ></textarea>
-        </div>
-
-        <!-- Reusing the Ministry Position Dropdown -->
-        <div class="form-group">
-          <label for="ministry_position"
-            >Relevant Ministry Position (Optional)</label
-          >
-          <select id="ministry_position" x-model="formData.ministry_position">
-            <option value="">-- Select a Position --</option>
-            <option value="Pastor">Pastor</option>
-            <option value="Deacon/Deaconess">Deacon/Deaconess</option>
-            <option value="Cell Leader">Cell Leader</option>
-            <option value="PCF Leader">PCF Leader</option>
-            <option value="Church Staff">Church Staff</option>
-            <option value="Usher">Usher</option>
-            <option value="Chorister">Chorister</option>
-            <option value="Member">Member</option>
-          </select>
-        </div>
-
-        <hr />
-
-        <h3>Optional Attachments</h3>
-        <p>
-          You can upload a document, photos, or a video to support your idea.
-        </p>
-
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="document">Document (PDF, DOCX)</label>
-            <!-- We use x-ref to give Alpine a direct reference to this input element -->
-            <input
-              type="file"
-              id="document"
-              x-ref="documentInput"
-              accept=".pdf,.doc,.docx"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="photos">Photos (JPG, PNG)</label>
-            <input
-              type="file"
-              id="photos"
-              x-ref="photosInput"
-              accept="image/jpeg,image/png"
-              multiple
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="video">Video (MP4)</label>
-            <input
-              type="file"
-              id="video"
-              x-ref="videoInput"
-              accept="video/mp4"
-            />
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" :disabled="isSubmitting">
-            <span x-show="!isSubmitting">Submit Idea</span>
-            <span x-show="isSubmitting">Submitting...</span>
-          </button>
-        </div>
-      </form>
-    </div>
-  </template>
 </div>

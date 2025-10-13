@@ -4,7 +4,8 @@ import { Router } from "express";
 import {
   createPaymentIntent,
   finalizeOrder,
-  getOrderHistory,
+  getOrderHistory, 
+  getOrderDetails,
 } from "../controllers/orderController.js";
 import { isAuthenticated } from "../middleware/authMiddleware.js";
 
@@ -19,5 +20,8 @@ router.post("/finalize", finalizeOrder);
 
 // This route remains the same
 router.get("/", getOrderHistory);
+
+router.get('/:orderId', getOrderDetails);
+
 
 export default router;

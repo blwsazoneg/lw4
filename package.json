@@ -27,11 +27,18 @@
     "dev": "node app.js",
     "test": "nodemon app.js",
     "build-sdk": "browserify src/build/kingschat-importer.cjs -o public/libs/kingschat-bundle.js",
-    "promote-user": "node scripts/promote-user.cjs"
+    "promote-user": "node scripts/promote-user.cjs",
+    "build:css": "sass scss/theme.scss public/css/theme.css --no-source-map --style=compressed",
+    "watch:css": "sass --watch scss/theme.scss:public/css/theme.css",
+    "prestart": "npm run build:css",
+    "postinstall": "npm run build:css",
+    "build": "npm run build:css && npm run build-sdk"
   },
   "dependencies": {
+    "@popperjs/core": "^2.11.8",
     "alpinejs": "^3.15.0",
     "axios": "^1.12.2",
+    "bootstrap": "^5.3.8",
     "connect-pg-simple": "^10.0.0",
     "dotenv": "^17.2.3",
     "ejs": "^3.1.10",
@@ -40,11 +47,13 @@
     "express-session": "^1.18.2",
     "kingschat-web-sdk": "^0.1.0",
     "multer": "^2.0.2",
+    "nodemailer": "^7.0.9",
     "pg": "^8.16.3",
     "stripe": "^19.1.0"
   },
   "devDependencies": {
     "browserify": "^17.0.1",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "sass": "^1.93.2"
   }
 }

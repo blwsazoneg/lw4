@@ -1,0 +1,64 @@
+<% layout('/layouts/admin-layout') %>
+
+<div class="container mt-4" x-data="productList">
+    <header class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2 mb-0">Manage Products</h1>
+        <a href="/admin/products/new" class="btn btn-primary">Add New Product</a>
+    </header>
+
+    <div x-show="isLoading" class="text-center p-5">
+        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>
+
+    <div x-show="!isLoading">
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Brand</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="product in products" :key="product.id">
+                                <tr>
+                                    <td x-text="product.id"></td>
+                                    <td class="fw-bold" x-text="product.name"></td>
+                                    <td class="text-muted" x-text="product.brand_name"></td>
+                                    <td x-text="formatCurrency(product.price)"></td>
+                                    <td x-text="product.stock_quantity"></td>
+                                    <td class="text-end">
+                                        <div class="d-flex gap-2 justify-content-end">
+                                            <a :href="`/admin/products/edit/${product.id}`" class="btn btn-sm btn-outline-primary">Edit</a>
+                                            <button @click="confirmDelete(product.id, product.name)" class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+ <nav x-show="pagination && pagination.totalPages > 1" class="mt-4 d-flex justify-content-center">
+            <ul class="pagination">
+                <li class="page-item" :class="{ 'disabled': pagination && pagination.currentPage <= 1 }">
+                  <a class="page-link" href="#" @click.prevent="changePage((pagination && pagination.currentPage) ? pagination.currentPage - 1 : 1)">Previous</a>
+                </li>
+                <li class="page-item active">
+                  <a class="page-link" href="#" x-text="pagination ? pagination.currentPage : 1"></a>
+               </li>
+                <li class="page-item" :class="{ 'disabled': pagination && pagination.currentPage >= pagination.totalPages }">
+                  <a class="page-link" href="#" @click.prevent="changePage((pagination && pagination.currentPage) ? pagination.currentPage + 1 : 1)">Next</a>
+                </li>
+            </ul>
+        </nav>    </div>
+</div>

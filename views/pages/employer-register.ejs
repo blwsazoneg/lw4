@@ -1,0 +1,84 @@
+<% layout('layouts/app-layout') %>
+
+<div class="container" x-data="employerRegistration(APP_DATA.user)">
+  <h1>SBO / Employer Registration</h1>
+  <p class="subtitle">
+    Create your company profile to start posting job opportunities.
+  </p>
+
+  <!-- STATE 1: User is NOT logged in -->
+  <template x-if="!isLoggedIn">
+    <div class="start-profile-box">
+      <h2>Step 1: Connect Your Account</h2>
+      <p>Begin by securely connecting with your KingsChat account.</p>
+      <!-- This login button will redirect back to this same page -->
+      <div x-data="kingsChatLogin" x-init="setRedirect('/employers/register')">
+        <a @click="handleLogin()" class="kc-web-sdk-btn"></a>
+      </div>
+    </div>
+  </template>
+
+  <!-- STATE 2: User IS logged in and can create their company -->
+  <template x-if="isLoggedIn">
+    <div>
+      <h2>Step 2: Tell Us About Your Company</h2>
+      <p>Fill out the details below to create your company profile.</p>
+
+      <form @submit.prevent="registerCompany" class="profile-form">
+        <div class="form-group">
+          <label for="name">Company / SBO Name</label>
+          <input
+            type="text"
+            id="name"
+            x-model="formData.name"
+            placeholder="Your Company's Name"
+            required
+          />
+        </div>
+        <!-- NEW: KingsChat Handle Input -->
+        <!-- NEW FIELD -->
+        <div class="form-group">
+          <label for="kingschat_handle"
+            >KingsChat Handle for Notifications</label
+          >
+          <input
+            type="text"
+            id="kingschat_handle"
+            x-model="formData.kingschat_handle"
+            placeholder="e.g., @mycompany"
+            required
+          />
+          <small
+            >This is the KingsChat account that will receive direct messages for
+            new applications.</small
+          >
+        </div>
+        <div class="form-group">
+          <label for="description">Company Description</label>
+          <textarea
+            id="description"
+            x-model="formData.description"
+            rows="5"
+            placeholder="What does your company do?"
+          ></textarea>
+        </div>
+        <div class="form-group">
+          <label for="website">Company Website (Optional)</label>
+          <input
+            type="url"
+            id="website"
+            x-model="formData.website"
+            placeholder="https://your-company.com"
+          />
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" :disabled="isSubmitting">
+            <span x-show="!isSubmitting">Create Company Profile</span>
+            <span x-show="isSubmitting">Creating...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </template>
+</div>

@@ -1,54 +1,58 @@
-<% layout('layouts/mainLayout') %>
+<% layout('layouts/app-layout') %>
 
-<!-- 
-    We create the component and pass the jobId from our server.
-    We also pass the logged-in user data for the "Apply" button logic.
--->
-<div
-  class="container"
-  x-data="jobDetail(<%= jobId %>, APP_DATA.user)"
-  x-init="fetchJob()"
->
-  <!-- Loading State -->
-  <div x-show="isLoading" class="loading"><p>Loading job details...</p></div>
-
-  <!-- Error State -->
-  <div x-show="error" class="error-message">
-    <p x-text="error"></p>
-  </div>
-
-  <!-- Main Job Content (show when not loading and no errors) -->
-  <div x-show="!isLoading && job">
-    <div class="job-detail-header">
-      <h1 x-text="job.title"></h1>
-      <h2 x-text="job.company_name"></h2>
-      <p class="job-location" x-text="job.location"></p>
+<!-- Pass the jobId from the server into our Alpine component -->
+<div class="container mt-4" x-data="jobDetail(<%= jobId %>, APP_DATA.user)" x-init="init()">
+    
+    <!-- Loading State -->
+    <div x-show="isLoading" class="text-center p-5">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
     </div>
 
-    <div class="job-detail-body">
-      <h3>Job Description</h3>
-      <!-- Use x-html to render any HTML formatting that might be in the description -->
-      <div x-html="job.description"></div>
-    </div>
+    <!-- Error State -->
+    <div x-show="error" class="alert alert-danger" x-text="error"></div>
 
-    <div class="job-tags">
-      <template x-for="tag in job.tags" :key="tag">
-        <span class="job-tag" x-text="tag"></span>
-      </template>
-    </div>
+    <!-- Main Job Content -->
+    <template x-if="job">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Header Section -->
+                <header class="pb-3 mb-4 border-bottom">
+                    <h1 class="display-5" x-text="job.title"></h1>
+                    <h2 class="h4 text-muted" x-text="job.company_name"></h2>
+                    <p class="lead fs-6 text-muted" x-text="job.location"></p>
+                </header>
 
-    <hr />
+                <!-- Body Section -->
+                <main>
+                    <h3 class="h4">Job Description</h3>
+                    <!-- Use x-html to render any HTML formatting from the description -->
+                    <div class="job-description" x-html="job.description"></div>
 
-    <div class="job-actions">
-      <button
-        @click="handleApply()"
-        class="job-apply-btn"
-        :disabled="isApplying || hasApplied"
-      >
-        <span x-show="isApplying">Applying...</span>
-        <span x-show="!isApplying && !hasApplied">Apply for this Role</span>
-        <span x-show="hasApplied">You have already applied</span>
-      </button>
-    </div>
-  </div>
+                    <!-- Tags Section -->
+                    <div class="mt-4">
+                        <h4 class="h5">Tags</h4>
+                        <div class="d-flex flex-wrap gap-2">
+                            <template x-for="tag in job.tags" :key="tag">
+                                <span class="badge bg-secondary fw-normal" x-text="tag"></span>
+                            </template>
+                        </div>
+                    </div>
+                </main>
+
+                <hr class="my-4">
+
+                <!-- Actions Section -->
+                <footer class="job-actions">
+                    <button @click="handleApply()" class="btn btn-primary btn-lg w-100" :disabled="isApplying || hasApplied">
+                        <span x-show="isApplying" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span x-show="isApplying">Applying...</span>
+                        <span x-show="!isApplying && !hasApplied">Apply for this Role</span>
+                        <span x-show="hasApplied">You have already applied</span>
+                    </button>
+                </footer>
+            </div>
+        </div>
+    </template>
 </div>

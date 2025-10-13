@@ -1,0 +1,16 @@
+<% layout('/layouts/app-layout') %>
+
+<div class="container admin-login-container">
+  <div class="admin-login-box">
+    <h1>Admin Portal</h1>
+    <p>Please log in with your administrative KingsChat account to continue.</p>
+
+    <!-- 
+            We use the kingsChatLogin component, but we set a custom redirect
+            to send the user to the admin dashboard upon successful login.
+        -->
+    <div x-data="kingsChatLogin" x-init="setRedirect('/admin')">
+      <a @click="handleLogin()" class="kc-web-sdk-btn"></a>
+    </div>
+  </div>
+</div>

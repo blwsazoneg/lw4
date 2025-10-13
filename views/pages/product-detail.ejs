@@ -1,7 +1,7 @@
-<% layout('layouts/mainLayout') %>
+<% layout('layouts/app-layout') %>
 <div x-data>
   <!-- We will make the link point to a future /cart page -->
-  <a href="/cart" class="nav-cart-link">
+  <a href="/cart" class="floating-cart-link">
     <!-- 
             SVG Cart Icon - A simple, clean icon.
             You can find many free SVG icons online to customize this.
@@ -55,31 +55,62 @@
     <div class="product-detail-info">
       <p x-text="product.brand_name" class="product-brand"></p>
       <h1 x-text="product.name"></h1>
-      <p x-text="formatCurrency(product.price)" class="product-price-large"></p>
-
+      <div class="price-container">
+        <template
+          x-if="product.discount_price && product.discount_price < product.price"
+        >
+          <div>
+            <p
+              x-text="formatCurrency(product.discount_price)"
+              class="product-price-large discount"
+            ></p>
+            <p
+              x-text="formatCurrency(product.price)"
+              class="product-price-large original"
+            ></p>
+          </div>
+        </template>
+        <template
+          x-if="!product.discount_price || product.discount_price >= product.price"
+        >
+          <p
+            x-text="formatCurrency(product.price)"
+            class="product-price-large"
+          ></p>
+        </template>
+      </div>
       <div class="product-description" x-html="product.description"></div>
 
       <!-- Dynamic "Add to Cart" / Quantity Stepper -->
       <div class="product-actions-detail">
-        <!-- Show "Add to Cart" if item is not in cart -->
-        <template x-if="!getCartItem(product.id)">
-          <button
-            @click="addToCart(product.id)"
-            class="add-to-cart-btn-large"
-            :disabled="isAddingToCart"
-          >
-            <span x-show="!isAddingToCart">Add to Cart</span>
-            <span x-show="isAddingToCart">Adding...</span>
-          </button>
-        </template>
+        <!-- Show "Add to Cart" / Stepper only if IN STOCK -->
+        <template x-if="product.stock_quantity > 0">
+          <div>
+            <!-- Show "Add to Cart" if item is not in cart -->
+            <template x-if="!getCartItem(product.id)">
+              <button
+                @click="addToCart(product.id)"
+                class="add-to-cart-btn-large"
+                :disabled="isAddingToCart"
+              >
+                <span x-show="!isAddingToCart">Add to Cart</span>
+                <span x-show="isAddingToCart">Adding...</span>
+              </button>
+            </template>
 
-        <!-- Show Quantity Stepper if item IS in cart -->
-        <template x-if="getCartItem(product.id)">
-          <div class="quantity-stepper large">
-            <button @click="updateQuantity(product.id, -1)">-</button>
-            <span x-text="getCartItem(product.id).quantity"></span>
-            <button @click="updateQuantity(product.id, 1)">+</button>
+            <!-- Show Quantity Stepper if item IS in cart -->
+            <template x-if="getCartItem(product.id)">
+              <div class="quantity-stepper large">
+                <button @click="updateQuantity(product.id, -1)">-</button>
+                <span x-text="getCartItem(product.id).quantity"></span>
+                <button @click="updateQuantity(product.id, 1)">+</button>
+              </div>
+            </template>
           </div>
+        </template>
+        <!-- Show "Out of Stock" button if NOT IN STOCK -->
+        <template x-if="product.stock_quantity <= 0">
+          <button class="add-to-cart-btn-large" disabled>Out of Stock</button>
         </template>
       </div>
     </div>

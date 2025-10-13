@@ -1,0 +1,58 @@
+<% layout('layouts/intro-layout') %>
+
+    <div class="landing-container" x-data="innovateIntroPage">
+      <div class="blob-container">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+      </div>
+
+      <div class="landing-content-wrapper" :class="{ 'fade-out': isExiting }">
+        <div class="landing-content">
+          <div
+            x-show="showText"
+            x-transition:enter="welcome-text-transition"
+            x-transition:enter-start="slide-fade-enter-from"
+            x-transition:enter-end="slide-fade-enter-to"
+            class="welcome-text"
+          >
+            <h1 x-text="line1"></h1>
+            <h1 x-text="line2"></h1>
+          </div>
+          <!-- This button will now lead to the main application (e.g., the shop) -->
+          <a href="/innovate" x-show="showText" class="explore-btn"
+            ><div
+              x-show="showText"
+              x-transition:enter="welcome-text-transition"
+              x-transition:enter-start="slide-fade-enter-from"
+              x-transition:enter-end="slide-fade-enter-to"
+            >
+              EXPLORE
+            </div></a
+          >
+        </div>
+        <div class="top-right-buttons">
+          <a href="/profile/create" class="auth-btn"
+            ><div
+              x-show="showText"
+              x-transition:enter="welcome-text-transition"
+              x-transition:enter-start="slide-fade-enter-from"
+              x-transition:enter-end="slide-fade-enter-to"
+            >
+              Sign In
+            </div></a
+          >
+          <a href="/profile/create" class="auth-btn"
+            ><div
+              x-show="showText"
+              x-transition:enter="welcome-text-transition"
+              x-transition:enter-start="slide-fade-enter-from"
+              x-transition:enter-end="slide-fade-enter-to"
+            >
+              Sign Up
+            </div></a
+          >
+        </div>
+      </div>
+    </div>
+

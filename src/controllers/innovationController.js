@@ -128,3 +128,53 @@ export const getInnovationById = async (req, res) => {
 //     res.status(500).json({ message: "Internal server error" });
 //   }
 // };
+
+// --- NEW: GET ALL INNOVATIONS (Admin Only) ---
+export const getAllInnovationsAdmin = async (req, res) => {
+  try {
+    // Join with users table to get the submitter's name
+    const query = `
+            SELECT i.*, u.first_name, u.last_name 
+            FROM innovations i
+            LEFT JOIN users u ON i.user_id = u.id
+            ORDER BY i.submitted_at DESC;
+        `;
+    const result = await pool.query(query);
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error fetching all innovations:", error);
+    res.status(500).json({ message: "Server error." });
+  }
+};
+
+// --- GET A SINGLE INNOVATION'S DETAILS (Admin Only - CORRECTED) ---
+export const getInnovationByIdAdmin = async (req, res) => {
+  const { id } = req.params;
+  try {
+    // THE FIX: Add u.phone_number and u.kingschat_username to the SELECT statement.
+    const query = `
+            SELECT 
+                i.*, 
+                u.first_name, 
+                u.last_name,
+                u.email,
+                u.phone_number,         -- <-- ADD THIS
+                u.kingschat_username    -- <-- ADD THIS
+            FROM innovations i
+            LEFT JOIN users u ON i.user_id = u.id
+            WHERE i.id = $1;
+        `;
+    const result = await pool.query(query, [id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Innovation not found." });
+    }
+
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    console.error(`Error fetching innovation ${id} for admin:`, error);
+    res
+      .status(500)
+      .json({ message: "Server error while fetching innovation details." });
+  }
+};

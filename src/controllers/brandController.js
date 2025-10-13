@@ -32,3 +32,17 @@ export const getAllBrands = async (req, res) => {
     res.status(500).json({ message: 'Server error while fetching brands.' });
   }
 };
+
+// DELETE a brand (Admin Only)
+export const deleteBrand = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query('DELETE FROM brands WHERE id = $1 RETURNING *;', [id]);
+        if (result.rowCount === 0) return res.status(404).json({ message: 'Brand not found.' });
+        res.status(200).json({ message: 'Brand deleted.' });
+    } catch (error) {
+        // Handle case where brand is in use by a product
+        if (error.code === '23503') return res.status(409).json({ message: 'Cannot delete brand as it is in use by products.' });
+        res.status(500).json({ message: 'Server error.' });
+    }
+};

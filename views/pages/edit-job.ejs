@@ -1,0 +1,51 @@
+<% layout('layouts/app-layout') %>
+
+<div class="container mt-4" x-data="jobEditor(<%= jobId %>)" x-init="init()">
+    <div x-show="isLoading" class="text-center p-5">
+        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>
+    <div x-show="error" class="alert alert-danger" x-text="error"></div>
+
+    <template x-if="!isLoading && !error">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <header class="mb-4">
+                    <h1 class="h2">Edit Job: <span x-text="formData.title"></span></h1>
+                    <p class="lead text-muted">Modify the details for this job posting below.</p>
+                </header>
+
+                <div class="card card-body">
+                    <form @submit.prevent="saveChanges">
+                        <!-- Job Details -->
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Job Title</label>
+                            <input type="text" id="title" class="form-control" x-model="formData.title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Job Description</label>
+                            <textarea id="description" class="form-control" x-model="formData.description" rows="8" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Location</label>
+                            <input type="text" id="location" class="form-control" x-model="formData.location">
+                        </div>
+                        <div class="mb-3">
+                            <label for="tags" class="form-label">Tags (comma-separated)</label>
+                            <input type="text" id="tags" class="form-control" x-model="tagsInput">
+                            <div class="form-text">Separate each tag with a comma.</div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a href="/employers/dashboard" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary" :disabled="isSaving">
+                                <span x-show="!isSaving">Save Changes</span>
+                                <span x-show="isSaving" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </template>
+</div>

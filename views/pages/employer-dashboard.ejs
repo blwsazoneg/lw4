@@ -1,0 +1,101 @@
+<% layout('layouts/app-layout') %>
+
+<div class="container mt-4" x-data="employerDashboard" x-init="init()">
+    
+    <div x-show="isLoading" class="text-center p-5">
+        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>
+
+    <div x-show="!isLoading">
+        <!-- STATE 1: User does NOT have a company profile -->
+        <template x-if="!company">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card card-body bg-light text-center p-4 p-md-5">
+                        <h1 class="h2">Create Your Company Profile</h1>
+                        <p class="lead text-muted">Before you can post jobs, you need to create a profile for your company or SBO.</p>
+                        
+                        <form @submit.prevent="registerCompany" class="text-start mt-4">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Company / SBO Name</label>
+                                <input type="text" id="name" class="form-control" x-model="formData.name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Company Description</label>
+                                <textarea id="description" class="form-control" x-model="formData.description" rows="5"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="website" class="form-label">Company Website</label>
+                                <input type="url" id="website" class="form-control" x-model="formData.website">
+                            </div>
+                            <div class="mb-3">
+                                <label for="kingschat_handle" class="form-label">KingsChat Handle for Notifications</label>
+                                <input type="text" id="kingschat_handle" class="form-control" x-model="formData.kingschat_handle" required>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg" :disabled="isSubmitting">
+                                    <span x-show="!isSubmitting">Create Company Profile</span>
+                                    <span x-show="isSubmitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- STATE 2: User HAS a company profile -->
+        <template x-if="company">
+            <div>
+                <header class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                    <h1 class="h2 mb-0" x-text="company.name"></h1>
+                    <div>
+                        <a href="/employers/company/edit" class="btn btn-outline-secondary">Edit Company</a>
+                        <a href="/employers/jobs/new" class="btn btn-primary">Post a New Job</a>
+                    </div>
+                </header>
+
+                <template x-if="jobs.length === 0">
+                    <div class="alert alert-info">You have not posted any jobs yet.</div>
+                </template>
+
+                <template x-if="jobs.length > 0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Title</th>
+                                    <% if (user.role === 'admin') { %><th>Company</th><% } %>
+                                    <th>Location</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-for="job in jobs" :key="job.id">
+                                    <tr :class="{ 'opacity-50': job.status === 'closed' }">
+                                        <td class="fw-bold" x-text="job.title"></td>
+                                        <% if (user.role === 'admin') { %><td x-text="job.company_name || 'N/A'"></td><% } %>
+                                        <td class="text-muted" x-text="job.location || 'N/A'"></td>
+                                        <td>
+                                            <span class="badge" :class="job.status === 'open' ? 'bg-success' : 'bg-danger'" x-text="job.status"></span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <a :href="`/employers/jobs/${job.id}/applicants`" class="btn btn-sm btn-outline-secondary">Applicants</a>
+                                                <a :href="`/employers/jobs/edit/${job.id}`" class="btn btn-sm btn-outline-primary">Edit</a>
+                                                <template x-if="job.status === 'open'"><button @click="updateStatus(job.id, 'closed')" class="btn btn-sm btn-outline-warning">Close</button></template>
+                                                <template x-if="job.status === 'closed'"><button @click="updateStatus(job.id, 'open')" class="btn btn-sm btn-outline-success">Re-open</button></template>
+                                                <button @click="deleteJob(job.id)" class="btn btn-sm btn-outline-danger">Delete</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </template>
+            </div>
+        </template>
+    </div>
+</div>

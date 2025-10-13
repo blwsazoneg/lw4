@@ -1,0 +1,57 @@
+<% layout('layouts/app-layout') %>
+
+<div class="container mt-4" x-data="jobCreator(APP_DATA.user)" x-init="init()">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <header class="mb-4">
+                <h1 class="h2">Post a New Job</h1>
+                <p class="lead text-muted">Fill out the details below to advertise your new role.</p>
+            </header>
+
+            <div class="card card-body">
+                <form @submit.prevent="submitJob">
+                    <!-- Company Selector for Admins -->
+                    <template x-if="isAdmin">
+                        <div class="mb-3">
+                            <label for="company" class="form-label fw-bold">Post Job For Company</label>
+                            <select id="company" class="form-select" x-model="formData.company_id" required>
+                                <option value="">-- Select a Company --</option>
+                                <template x-for="company in allCompanies" :key="company.id">
+                                    <option :value="company.id" x-text="company.name"></option>
+                                </template>
+                            </select>
+                        </div>
+                    </template>
+
+                    <!-- Job Details -->
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Job Title</label>
+                        <input type="text" id="title" class="form-control" x-model="formData.title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Job Description</label>
+                        <textarea id="description" class="form-control" x-model="formData.description" rows="8" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location</label>
+                        <input type="text" id="location" class="form-control" x-model="formData.location" placeholder="e.g., Cape Town, South Africa or Remote">
+                    </div>
+                    <div class="mb-3">
+                        <label for="tags" class="form-label">Tags (comma-separated)</label>
+                        <input type="text" id="tags" class="form-control" x-model="formData.tags" placeholder="e.g., dev, soft, agile, management">
+                        <div class="form-text">Tags help candidates find your job. Separate each tag with a comma.</div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a href="/employers/dashboard" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
+                            <span x-show="!isSubmitting">Post Job</span>
+                            <span x-show="isSubmitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

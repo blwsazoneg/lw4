@@ -1,0 +1,73 @@
+<% layout('/layouts/app-layout') %>
+
+<div class="container mt-4" x-data="productEditor(<%= productId %>)" x-init="init()">
+    <div x-show="isLoading" class="text-center p-5">
+        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>
+    <div x-show="error" class="alert alert-danger" x-text="error"></div>
+
+    <template x-if="!isLoading && !error">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <header class="mb-4">
+                    <h1 class="h2">Edit Product: <span x-text="product.name"></span></h1>
+                </header>
+
+                <div class="card card-body">
+                    <form @submit.prevent="saveChanges">
+                        <div class="row g-3">
+                            <!-- Core Details -->
+                            <div class="col-md-6"><label for="name" class="form-label">Product Name</label><input type="text" id="name" class="form-control" x-model="product.name" required></div>
+                            <div class="col-md-6"><label for="brand" class="form-label">Brand</label><div class="input-group"><select id="brand" class="form-select" x-model="product.brand_id" required><option value="">-- Select --</option><template x-for="brand in brands" :key="brand.id"><option :value="brand.id" x-text="brand.name"></option></template></select><button type="button" @click="openCreationModal('brand')" class="btn btn-outline-secondary">+</button></div></div>
+                            <div class="col-12"><label for="description" class="form-label">Description</label><textarea id="description" class="form-control" x-model="product.description" rows="5"></textarea></div>
+                            <div class="col-12"><label for="image_url" class="form-label">Image URL</label><input type="text" id="image_url" class="form-control" x-model="product.image_url"><small class="form-text">To upload a new image, please create a new product.</small></div>
+                            
+                            <!-- Pricing & Stock -->
+                            <div class="col-12"><hr class="my-3"><h5>Pricing & Stock</h5></div>
+                            <div class="col-md-6"><label for="price" class="form-label">Current Price (ZAR)</label><input type="number" id="price" class="form-control" x-model="product.price" step="0.01" required></div>
+                            <div class="col-md-6"><label for="stock_quantity" class="form-label">Stock Quantity</label><input type="number" id="stock_quantity" class="form-control" x-model="product.stock_quantity" required></div>
+
+                            <!-- Categorization & Contact -->
+                            <div class="col-12"><hr class="my-3"><h5>Categorization & Contact</h5></div>
+                            <div class="col-md-6"><label for="sector" class="form-label">Sector</label><div class="input-group"><select id="sector" class="form-select" x-model="product.sector_id" required><option value="">-- Select --</option><template x-for="sector in sectors" :key="sector.id"><option :value="sector.id" x-text="sector.name"></option></template></select><button type="button" @click="openCreationModal('sector')" class="btn btn-outline-secondary">+</button></div></div>
+                            <div class="col-md-6"><label for="contact_details" class="form-label">Contact Details (Optional)</label><input type="text" id="contact_details" class="form-control" x-model="product.contact_details"></div>
+
+                            <!-- Discount Pricing -->
+                            <div class="col-12"><hr class="my-3"><h5>Discount Pricing (Optional)</h5></div>
+                            <div class="col-md-6"><label for="original_price" class="form-label">Original Price</label><input type="number" id="original_price" class="form-control" x-model="product.original_price" step="0.01"></div>
+                            <div class="col-md-6"><label for="discount_price" class="form-label">Discount Price</label><input type="number" id="discount_price" class="form-control" x-model="product.discount_price" step="0.01"></div>
+                            <div class="col-md-6"><label for="discount_start_date" class="form-label">Discount Start Date</label><input type="date" id="discount_start_date" class="form-control" x-model="product.discount_start_date"></div>
+                            <div class="col-md-6"><label for="discount_end_date" class="form-label">Discount End Date</label><input type="date" id="discount_end_date" class="form-control" x-model="product.discount_end_date"></div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a href="/admin/products" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary" :disabled="isSaving"><span x-show="!isSaving">Save Changes</span><span x-show="isSaving" class="spinner-border spinner-border-sm"></span></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Reusable Creation Modal -->
+    <div x-show="isModalOpen" class="modal fade show" style="display: block;" @keydown.escape.window="closeModal()">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title" x-text="`Create New ${modalType}`"></h5><button type="button" class="btn-close" @click="closeModal()"></button></div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label :for="`new_${modalType}_name`" class="form-label">New <span x-text="modalType"></span> Name</label>
+                        <input :id="`new_${modalType}_name`" type="text" class="form-control" x-model="newItemName" @keydown.enter.prevent="handleCreateNewItem()">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" @click="closeModal()" class="btn btn-secondary">Cancel</button>
+                    <button type="button" @click="handleCreateNewItem()" class="btn btn-primary">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div x-show="isModalOpen" class="modal-backdrop fade show"></div>
+</div>

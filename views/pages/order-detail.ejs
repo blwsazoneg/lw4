@@ -1,0 +1,46 @@
+<% layout('layouts/app-layout') %>
+
+<div class="container mt-4" x-data="orderDetail(<%= orderId %>)" x-init="init()">
+    <div x-show="isLoading" class="text-center p-5">
+        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>
+    <div x-show="error" class="alert alert-danger" x-text="error"></div>
+
+    <template x-if="order">
+        <div>
+            <header class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h2 mb-0">Order Details</h1>
+                    <p class="lead text-muted fs-6">Order #<span x-text="order.order_number"></span></p>
+                </div>
+                <a href="/orders" class="btn btn-outline-secondary">&larr; Back to Order History</a>
+            </header>
+
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between">
+                    <span><strong>Order Date:</strong> <span x-text="formatDate(order.created_at)"></span></span>
+                    <span><strong>Total:</strong> <span x-text="formatCurrency(order.total_amount)"></span></span>
+                    <span><strong>Status:</strong> <span class="badge bg-primary" x-text="order.status"></span></span>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Items in this Order</h5>
+                    <ul class="list-group list-group-flush">
+                        <template x-for="(item, index) in order.items" :key="index">
+                            <li class="list-group-item d-flex gap-3 py-3">
+                                <img :src="item.image_url || '/images/placeholder.png'" alt="..." width="64" height="64" class="rounded">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1" x-text="item.name || 'Product No Longer Available'"></h6>
+                                    <p class="mb-1 text-muted" x-text="`Quantity: ${item.quantity}`"></p>
+                                    <small class="text-muted" x-text="`Price each: ${formatCurrency(item.price_at_purchase)}`"></small>
+                                </div>
+                                <div class="text-end fw-bold">
+                                    <span x-text="formatCurrency(item.price_at_purchase * item.quantity)"></span>
+                                </div>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </template>
+</div>

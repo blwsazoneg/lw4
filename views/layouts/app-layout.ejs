@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/header') %>
+    <link rel="stylesheet" href="/css/theme.css?v=1.0.3">
+    <script>
+        window.APP_DATA = {
+            user: <%- JSON.stringify(user || null) %>,
+            STRIPE_PUBLISHABLE_KEY: <%- JSON.stringify(STRIPE_PUBLISHABLE_KEY || null) %>
+        };
+    </script>
+</head>
+<body>
+    <!-- 
+        =====================================================
+        THE FINAL, PURE BOOTSTRAP NAVBAR
+        =====================================================
+        - No more x-data or x-show.
+        - Uses data-bs-toggle and data-bs-target for functionality.
+    -->
+    <header class="app-header navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <!-- Hamburger Toggle Button -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainAppNavbar" aria-controls="mainAppNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Brand/Logo -->
+            <a class="navbar-brand" href="/">LW4.0</a>
+
+            <!-- Cart Icon -->
+            <!-- <a href="/cart" class="header-cart-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+                <span x-data x-show="$store.cart.count > 0" x-text="$store.cart.count" class="cart-count"></span>
+            </a> -->
+
+            <!-- Collapsible Menu Content -->
+            <div class="collapse navbar-collapse" id="mainAppNavbar">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="/shop">Shop</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/jobs">Job Board</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/innovate">Innovate</a></li>
+                </ul>
+                
+                <!-- User Actions (will be hidden on mobile, shown on desktop) -->
+                <ul class="navbar-nav d-lg-flex">
+                     <% if (user) { %>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Welcome, <%= user.firstName %>!
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <% if (user.role === 'admin') { %><li><a class="dropdown-item" href="/admin">Admin Panel</a></li><% } %>
+                                <% if (user.role === 'employer' || user.role === 'admin') { %><li><a class="dropdown-item" href="/employers/dashboard">Employer Dashboard</a></li><% } %>
+                                <li><a class="dropdown-item" href="/orders">My Orders</a></li>
+                                <li><a class="dropdown-item" href="/profile/create">My Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="/api/auth/logout">Logout</a></li>
+                            </ul>
+                        </li>
+                    <% } else { %>
+                        <li class="nav-item" x-data>
+                            <a class="nav-link" href="#" @click.prevent="$store.auth.login()">Login</a>
+                        </li>
+                    <% } %>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <%- body %>
+    </main>
+
+    <%- include('../partials/footer') %>
+    <!-- Modals and Toasts -->
+    <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title w-100" id="notificationModalLabel" x-text="$store.notifications.title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p x-text="$store.notifications.message"></p>
+                </div>
+                <div class="modal-footer border-0 justify-content-center">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div
+      x-data="toast"
+      x-show="isVisible"
+      x-transition:enter-start="opacity-0 transform translate-x-full"
+      x-transition:enter-end="opacity-100 transform translate-x-0"
+      x-transition:leave-start="opacity-100 transform translate-x-0"
+      x-transition:leave-end="opacity-0 transform translate-x-full"
+      @click="close()"
+      class="toast-container"
+      style="display: none"
+    >
+      <p x-text="message"></p>
+    </div>
+</body>
+</html>

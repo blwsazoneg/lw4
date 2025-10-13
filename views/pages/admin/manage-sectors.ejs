@@ -1,0 +1,38 @@
+<% layout('/layouts/admin-layout') %>
+
+<div class="container mt-4" x-data="manageItems({ type: 'Sector', apiUrl: '/api/sectors' })" x-init="init()">
+    <div class="row">
+        <!-- Left Column: List of items -->
+        <div class="col-md-7">
+            <div class="card">
+                <div class="card-header"><h4 class="mb-0">Existing Sectors</h4></div>
+                <div class="card-body">
+                    <div x-show="isLoading" class="text-center"><div class="spinner-border"></div></div>
+                    <ul class="list-group list-group-flush">
+                        <template x-for="item in items" :key="item.id">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span x-text="item.name"></span>
+                                <button @click="deleteItem(item.id)" class="btn btn-sm btn-outline-danger">&times;</button>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- Right Column: Add new item form -->
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-header"><h4 class="mb-0">Add New Sector</h4></div>
+                <div class="card-body">
+                    <form @submit.prevent="addItem()">
+                        <div class="mb-3">
+                            <label for="newName" class="form-label">Sector Name</label>
+                            <input type="text" id="newName" class="form-control" x-model="newItemName" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Add Sector</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

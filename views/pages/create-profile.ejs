@@ -1,222 +1,73 @@
-<!-- views/pages/create-profile.ejs -->
+<% layout('layouts/app-layout') %>
 
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <%- include('../partials/header') %>
-    <!-- DATA ISLAND for this page -->
-    <script>
-      window.APP_DATA = {
-          user: <%- JSON.stringify(user || null) %>
-      };
-    </script>
-  </head>
-  <body>
-    <%- include('../partials/navbar') %>
+<div class="container mt-4" x-data="profileCreator(APP_DATA.user)" x-init="init()">
+    
+    <header class="mb-4 text-center">
+        <h1 class="h2" x-text="pageTitle"></h1>
+        <p class="lead text-muted" x-show="!profileExists">Complete the steps below to build your profile and connect with opportunities.</p>
+        <p class="lead text-muted" x-show="profileExists">Keep your professional and ministry details up to date.</p>
+    </header>
 
-    <div
-      class="container"
-      x-data="profileCreator(APP_DATA.user)"
-      x-init="init()"
-    >
-      <h1 x-text="pageTitle"></h1>
-      <p class="subtitle" x-show="!profileExists">
-        Complete the steps below to build your profile and connect with
-        opportunities.
-      </p>
-      <p class="subtitle" x-show="profileExists">
-        Keep your professional and ministry details up to date.
-      </p>
-
-      <!-- STATE 1: User is NOT logged in -->
-      <template x-if="!isLoggedIn">
-        <div class="start-profile-box">
-          <h2>Step 1: Connect Your Account</h2>
-          <p>Start by securely connecting with your KingsChat account.</p>
-          <!-- We will put the login component's logic directly inside the main component -->
-          <a @click="handleLogin()" class="kc-web-sdk-btn"></a>
-        </div>
-      </template>
-
-      <!-- STATE 2: User IS logged in and can fill/edit the form -->
-      <template x-if="isLoggedIn">
-        <div>
-          <form @submit.prevent="saveProfile" class="profile-form">
-            <!-- Profile Header with ALL KingsChat Info -->
-            <div class="profile-header">
-              <img
-                :src="user.avatar || '/images/default-avatar.png'"
-                alt="Your Profile Picture"
-                class="profile-avatar"
-              />
-              <div class="profile-header-info">
-                <div class="form-group">
-                  <label>Name (from KingsChat)</label>
-                  <input
-                    type="text"
-                    :value="user.firstName + ' ' + (user.lastName || '')"
-                    disabled
-                  />
+    <template x-if="!isLoggedIn">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card card-body bg-light text-center p-4 p-md-5">
+                    <h2>Step 1: Connect Your Account</h2>
+                    <p>Start by securely connecting with your KingsChat account.</p>
+                    <div x-data="kingsChatLogin" x-init="setRedirect('/profile/create')">
+                         <a @click="handleLogin()" class="btn btn-primary btn-lg">Connect with KingsChat</a>
+                    </div>
                 </div>
-                <div class="form-group">
-                  <label>Email (from KingsChat)</label>
-                  <input type="email" :value="user.email" disabled />
-                </div>
-              </div>
             </div>
-
-            <!-- =================================================== -->
-            <!-- NEW: Grid for Read-Only KingsChat Data              -->
-            <!-- =================================================== -->
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Phone Number</label>
-                <input
-                  type="text"
-                  :value="user.phoneNumber || 'Not provided'"
-                  disabled
-                />
-              </div>
-              <div class="form-group">
-                <label>Gender</label>
-                <input
-                  type="text"
-                  :value="user.gender || 'Not provided'"
-                  disabled
-                />
-              </div>
-              <div class="form-group">
-                <label>Date of Birth</label>
-                <input
-                  type="text"
-                  :value="formatBirthDate(user.birthDateMillis)"
-                  disabled
-                />
-              </div>
-            </div>
-
-            <hr />
-
-            <!-- SECTION 1: PROFESSIONAL DETAILS -->
-            <h2>Your Professional Details</h2>
-            <div class="form-group">
-              <label for="headline">Headline</label>
-              <input
-                type="text"
-                id="headline"
-                x-model="formData.headline"
-                placeholder="e.g., Full Stack Web Developer"
-              />
-            </div>
-            <div class="form-group">
-              <label for="bio">Biography</label>
-              <textarea
-                id="bio"
-                x-model="formData.bio"
-                rows="4"
-                placeholder="A short summary about your professional background..."
-              ></textarea>
-            </div>
-            <!-- ... (Skills, Portfolio, LinkedIn fields) ... -->
-            <div class="form-group">
-              <label for="skills">Skills (comma-separated)</label>
-              <input
-                type="text"
-                id="skills"
-                x-model="skillsInput"
-                placeholder="e.g., JavaScript, Node.js, Public Speaking"
-              />
-            </div>
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="portfolio">Portfolio URL</label>
-                <input
-                  type="url"
-                  id="portfolio"
-                  x-model="formData.portfolio_url"
-                  placeholder="https://your-website.com"
-                />
-              </div>
-              <div class="form-group">
-                <label for="linkedin">LinkedIn URL</label>
-                <input
-                  type="url"
-                  id="linkedin"
-                  x-model="formData.linkedin_url"
-                  placeholder="https://linkedin.com/in/your-profile"
-                />
-              </div>
-            </div>
-            <hr />
-
-            <!-- SECTION 2: MINISTRY & PERSONAL DETAILS -->
-            <h2>Your Personal & Ministry Details</h2>
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="age">Age</label>
-                <input type="number" id="age" x-model="formData.age" required />
-              </div>
-              <div class="form-group">
-                <label for="field_of_study">Field of Study</label>
-                <input
-                  type="text"
-                  id="field_of_study"
-                  x-model="formData.field_of_study"
-                  placeholder="e.g., Computer Science"
-                />
-              </div>
-              <div class="form-group">
-                <label for="zone">Zone</label>
-                <input
-                  type="text"
-                  id="zone"
-                  x-model="formData.zone"
-                  placeholder="e.g., BLW Zone A"
-                  required
-                />
-              </div>
-              <div class="form-group">
-                <label for="church">Church</label>
-                <input
-                  type="text"
-                  id="church"
-                  x-model="formData.church"
-                  placeholder="e.g., Christ Embassy Central"
-                  required
-                />
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="ministry_position">Ministry Position</label>
-              <select
-                id="ministry_position"
-                x-model="formData.ministry_position"
-                required
-              >
-                <option value="">-- Select a Position --</option>
-                <option value="Pastor">Pastor</option>
-                <option value="Deacon/Deaconess">Deacon/Deaconess</option>
-                <option value="Cell Leader">Cell Leader</option>
-                <option value="PCF Leader">PCF Leader</option>
-                <option value="Church Staff">Church Staff</option>
-                <option value="Usher">Usher</option>
-                <option value="Chorister">Chorister</option>
-                <option value="Member">Member</option>
-              </select>
-            </div>
-
-            <div class="form-actions">
-              <button type="submit" :disabled="isSaving">
-                <span x-show="!isSaving" x-text="submitButtonText"></span>
-                <span x-show="isSaving">Saving...</span>
-              </button>
-            </div>
-          </form>
         </div>
-      </template>
-    </div>
+    </template>
 
-    <!-- We will inject the Alpine component directly into the footer -->
-    <%- include('../partials/footer-profile') %>
-  </body>
-</html>
+    <template x-if="isLoggedIn">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card card-body">
+                    <form @submit.prevent="saveProfile">
+                        <!-- Profile Header -->
+                        <div class="d-flex align-items-center gap-3 mb-4 pb-4 border-bottom">
+                            <img :src="user.avatar || '/images/default-avatar.png'" alt="Your Profile Picture" class="rounded-circle" width="80" height="80">
+                            <div>
+                                <h5 class="mb-0" x-text="user.firstName + ' ' + (user.lastName || '')"></h5>
+                                <p class="mb-0 text-muted" x-text="user.email"></p>
+                            </div>
+                        </div>
+
+                        <!-- Professional Details -->
+                        <h5>Professional Details</h5>
+                        <div class="row g-3">
+                            <div class="col-12"><label for="headline" class="form-label">Headline</label><input type="text" id="headline" class="form-control" x-model="formData.headline"></div>
+                            <div class="col-12"><label for="bio" class="form-label">Biography</label><textarea id="bio" class="form-control" x-model="formData.bio" rows="4"></textarea></div>
+                            <div class="col-12"><label for="skills" class="form-label">Skills (comma-separated)</label><input type="text" id="skills" class="form-control" x-model="skillsInput"></div>
+                            <div class="col-md-6"><label for="portfolio" class="form-label">Portfolio URL</label><input type="url" id="portfolio" class="form-control" x-model="formData.portfolio_url"></div>
+                            <div class="col-md-6"><label for="linkedin" class="form-label">LinkedIn URL</label><input type="url" id="linkedin" class="form-control" x-model="formData.linkedin_url"></div>
+                        </div>
+                        <hr class="my-4">
+
+                        <!-- Personal & Ministry Details -->
+                        <h5>Personal & Ministry Details</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6"><label for="age" class="form-label">Age</label><input type="number" id="age" class="form-control" x-model="formData.age" required></div>
+                            <div class="col-md-6"><label for="field_of_study" class="form-label">Field of Study</label><input type="text" id="field_of_study" class="form-control" x-model="formData.field_of_study"></div>
+                            <div class="col-md-6"><label for="zone" class="form-label">Zone</label><input type="text" id="zone" class="form-control" x-model="formData.zone" required></div>
+                            <div class="col-md-6"><label for="church" class="form-label">Church</label><input type="text" id="church" class="form-control" x-model="formData.church" required></div>
+                            <div class="col-md-6"><label for="ministry_position" class="form-label">Ministry Position</label><select id="ministry_position" class="form-select" x-model="formData.ministry_position" required><option value="">-- Select --</option><option>Pastor</option><option>Deacon/Deaconess</option><option>Cell Leader</option><option>PCF Leader</option><option>Church Staff</option><option>Usher</option><option>Chorister</option><option>Member</option></select></div>
+                            <div class="col-md-6"><label for="appointment_year" class="form-label">Appointment Year</label><input type="number" id="appointment_year" class="form-control" x-model="formData.appointment_year" min="1980" :max="new Date().getFullYear()"></div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="submit" class="btn btn-primary" :disabled="isSaving">
+                                <span x-show="!isSaving" x-text="submitButtonText"></span>
+                                <span x-show="isSaving" class="spinner-border spinner-border-sm"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </template>
+</div>

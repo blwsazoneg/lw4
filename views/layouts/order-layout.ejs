@@ -1,0 +1,199 @@
+<!-- views/layouts/order-layout.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('../partials/header') %>
+    <link rel="stylesheet" href="/css/theme.css?v=1.0.1">
+    <!-- DATA ISLAND for order pages -->
+    <script>
+      window.APP_DATA = {
+          user: <%- JSON.stringify(user || null) %>
+      };
+    </script>
+
+    <!--
+        =====================================================================
+        DEDICATED STYLES FOR THE ORDER HISTORY SECTION
+        =====================================================================
+    -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+    />
+    <!-- <style>
+      :root {
+        --order-bg: #f8f9fa;
+        --order-bg-alt: #ffffff;
+        --order-text-primary: #212529;
+        --order-text-secondary: #6c757d;
+        --order-accent-blue: #0d6efd;
+        --color-text-gold: #6d5f3b;
+
+        --order-border: #dee2e6;
+        --order-font: "Poppins", sans-serif;
+      }
+      html {
+        box-sizing: border-box;
+      }
+      *,
+      *:before,
+      *:after {
+        box-sizing: inherit;
+      }
+      body {
+        background-color: var(--order-bg);
+        font-family: var(--order-font);
+        color: var(--order-text-primary);
+        padding-top: 80px;
+      }
+      .container {
+        max-width: 960px;
+        margin: 40px auto;
+        padding: 0 1rem;
+      }
+      .main-nav {
+        background-color: var(--order-bg-alt);
+        border-bottom: 1px solid var(--order-border);
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        color: var(--color-text-gold);
+      }
+      .main-nav .nav-brand a,
+      .main-nav .nav-links a {
+        color: var(--order-text-gold);
+      }
+      .main-nav .hamburger-line {
+        background-color: var(--order-text-primary);
+      }
+
+      /* Order List Styling */
+      .order-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+      .order-card {
+        background-color: var(--order-bg-alt);
+        border: 1px solid var(--order-border);
+        border-radius: 8px;
+      }
+      .order-header {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--order-border);
+      }
+      .order-header p {
+        margin: 0.25rem 0;
+        color: var(--order-text-secondary);
+        font-size: 0.9rem;
+      }
+      .order-header p strong {
+        color: var(--order-text-primary);
+        font-weight: 500;
+      }
+      .order-card-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+      }
+      .order-card-link:hover .order-card {
+        border-color: var(--order-accent-blue);
+      }
+      .view-details-link {
+        display: block;
+        padding: 1rem 1.5rem;
+        font-weight: 600;
+        color: var(--order-accent-blue);
+        text-align: right;
+      }
+
+      /* Order Detail Page Styling */
+      .cart-items-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+      .cart-item {
+        display: flex;
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--order-border);
+      }
+      .cart-item:first-child {
+        border-top: none;
+        padding-top: 0;
+      }
+      .cart-item-image {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 5px;
+      }
+      .cart-item-details {
+        flex-grow: 1;
+      }
+      .cart-item-details h3 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.1rem;
+      }
+      .cart-item-details p {
+        margin: 0;
+        color: var(--order-text-secondary);
+        font-size: 0.9rem;
+      }
+      .cart-item-price {
+        text-align: right;
+        font-weight: 600;
+      }
+      .btn-secondary {
+        /* ... (ensure this style is defined) ... */
+      }
+      .loading {
+        text-align: center;
+        padding: 3rem;
+        font-size: 1.2rem;
+        color: var(--order-text-secondary);
+      }
+    </style> -->
+  </head>
+  <body class="order-theme">
+    <%- include('../partials/navbar', { solidNavbar: true, isShop: false }) %>
+    <%- body %> <%- include('../partials/footer') %>
+
+    <div
+      x-data="notificationModal"
+      x-show="isOpen"
+      @keydown.escape.window="close()"
+      x-transition:enter="alpine-fade"
+      x-transition:leave="alpine-fade"
+      class="modal-backdrop"
+    >
+      <div class="modal-content" @click.outside="close()">
+        <h3 x-text="title"></h3>
+        <p x-text="message"></p>
+        <button @click="close()" class="modal-close-btn">Close</button>
+      </div>
+    </div>
+
+    <div
+      x-data="toast"
+      x-show="isVisible"
+      x-transition:enter-start="opacity-0 transform translate-x-full"
+      x-transition:enter-end="opacity-100 transform translate-x-0"
+      x-transition:leave-start="opacity-100 transform translate-x-0"
+      x-transition:leave-end="opacity-0 transform translate-x-full"
+      @click="close()"
+      class="toast-container"
+    >
+      <p x-text="message"></p>
+    </div>
+  </body>
+</html>

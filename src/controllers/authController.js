@@ -28,23 +28,18 @@ const findOrCreateUser = async (kcProfile) => {
   let userResult = await pool.query(findUserQuery, [kcProfile.id]);
 
   if (userResult.rows.length > 0) {
-    // User exists, potentially update their info from KC
+    // User exists, update their info from KC, including the username.
     const updateUserQuery = `
             UPDATE users SET 
-                email = $1, 
-                first_name = $2, 
-                last_name = $3, 
-                avatar_url = $4,
-                phone_number = $5,
-                gender = $6,
-                birth_date_millis = $7
-            WHERE kingschat_id = $8 RETURNING *`;
+                email = $1, first_name = $2, last_name = $3, avatar_url = $4,
+                phone_number = $5, gender = $6, birth_date_millis = $7,
+                kingschat_username = $8 -- <-- ADD THIS
+            WHERE kingschat_id = $9 RETURNING *`;
 
     const [firstName, ...lastNameParts] = kcProfile.name.split(" ");
     const lastName = lastNameParts.join(" ") || "";
 
-    const updatedResult = await 
-    pool.query(updateUserQuery, [
+    const updatedResult = await pool.query(updateUserQuery, [
       kcProfile.email,
       firstName,
       lastName,
@@ -52,17 +47,18 @@ const findOrCreateUser = async (kcProfile) => {
       kcProfile.phone_number,
       kcProfile.gender,
       kcProfile.birth_date_millis,
+      kcProfile.username, // <-- ADD THIS VALUE
       kcProfile.id,
     ]);
     return updatedResult.rows[0];
   } else {
-    // User does not exist, create them with all available info
+    // User does not exist, create them with all available info.
     const [firstName, ...lastNameParts] = kcProfile.name.split(" ");
     const lastName = lastNameParts.join(" ") || "";
 
     const createUserQuery = `
-            INSERT INTO users (kingschat_id, email, first_name, last_name, avatar_url, phone_number, gender, birth_date_millis)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            INSERT INTO users (kingschat_id, email, first_name, last_name, avatar_url, phone_number, gender, birth_date_millis, kingschat_username)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) -- <-- ADD THIS
             RETURNING *;
         `;
     const values = [
@@ -74,6 +70,7 @@ const findOrCreateUser = async (kcProfile) => {
       kcProfile.phone_number,
       kcProfile.gender,
       kcProfile.birth_date_millis,
+      kcProfile.username, // <-- ADD THIS VALUE
     ];
 
     const newUserResult = await pool.query(createUserQuery, values);
@@ -102,13 +99,14 @@ export const verifyKingsChatToken = async (req, res) => {
     // 3. Create a persistent session for the user
     req.session.user = {
       id: user.id,
+      kingsChatId: user.kingschat_id,
       email: user.email,
       firstName: user.first_name,
       avatar: user.avatar_url,
       role: user.role,
       phoneNumber: user.phone_number,
       gender: user.gender,
-      birthDateMillis: user.birth_date_millis
+      birthDateMillis: user.birth_date_millis,
     };
 
     // 4. Send a success response

@@ -1,0 +1,739 @@
+<!-- views/layouts/shop-layout.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('../partials/header') %>
+
+    <!-- THE FIX: Load the main theme.css file FIRST -->
+    <link rel="stylesheet" href="/css/theme.css?v=1.0.3">
+
+    <!-- THEN, load the dedicated stylesheet for the shop theme -->
+    <link rel="stylesheet" href="/css/shop-theme.css?v=1.0.2">
+
+    <!-- DATA ISLAND for shop pages -->
+    <script>
+      window.APP_DATA = {
+          user: <%- JSON.stringify(user || null) %>,
+          STRIPE_PUBLISHABLE_KEY: <%- JSON.stringify(STRIPE_PUBLISHABLE_KEY || null) %>
+      };
+    </script>
+      html {
+        box-sizing: border-box;
+      }
+      *,
+      *:before,
+      *:after {
+        box-sizing: inherit;
+      }
+      /* =================================================================
+   1. E-COMMERCE THEME & GLOBAL OVERRIDES
+   ================================================================= */
+      :root {
+        --shop-bg: #ffffff;
+        --shop-bg-alt: #f7f7f7;
+        --shop-text-primary: #333333;
+        --shop-text-secondary: #777777;
+        --shop-accent-purple: #6a0dad;
+        --shop-accent-green: #28a745;
+        --shop-accent-red: #dc3545;
+        --shop-border: #e0e0e0;
+        --shop-text-gold: #6d5f3b;
+        --shop-font: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Helvetica, Arial, sans-serif;
+      }
+
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
+      body.shop-theme {
+        background-color: var(--shop-bg);
+        font-family: var(--shop-font);
+        color: var(--shop-text-primary);
+        padding-top: 80px; /* Space for the sticky navbar */
+      }
+
+      /* =================================================================
+   2. SHOP NAVBAR
+   ================================================================= */
+      .shop-theme .main-nav {
+        background-color: var(--shop-bg);
+        border-bottom: 1px solid var(--shop-border);
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+      }
+      .shop-theme .nav-brand a {
+        max-width: 150px;
+      }
+      .shop-theme .nav-links a {
+        color: var(--shop-text-gold);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .shop-theme .nav-links a:hover {
+        color: var(--shop-text-primary);
+      }
+      .shop-theme .hamburger-line {
+        background-color: var(--shop-accent-purple);
+      }
+      .shop-theme .nav-user-actions {
+        display: none; /* Hide complex user actions on shop pages for a cleaner look */
+      }
+      @media (min-width: 992px) {
+        .shop-theme .nav-user-actions {
+          display: flex;
+        }
+
+        .nav-user-actions {
+          flex-direction: row;
+          gap: 1rem;
+          align-items: center;
+
+          /* --- THE FIX --- */
+          flex-shrink: 0; /* Prevents this container from shrinking */
+          white-space: nowrap; /* Prevents the text and buttons inside from wrapping */
+        }
+      }
+      /* Override the default login button for the shop theme */
+      /* .shop-theme .kc-web-sdk-btn-s {
+        background-color: var(--shop-accent-purple) !important;
+        border: 1px solid var(--shop-accent-purple) !important;
+        color: white !important;
+      } */
+
+      /* =================================================================
+   2.1 NAVBAR USER DROPDOWN (Corrected and Final Version)
+   ================================================================= */
+
+      .user-dropdown {
+        position: relative;
+      }
+
+      .dropdown-toggle {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: none;
+        border: 1px solid transparent; /* Add a transparent border for consistent sizing */
+        border-radius: 5px;
+        padding: 0.5rem 0.75rem;
+        font-family: inherit;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s ease, border-color 0.2s ease;
+        z-index: 1000;
+      }
+
+      /* --- Toggle Styles for SOLID (Light) Navbar --- */
+      .main-nav.nav-solid .dropdown-toggle {
+        color: var(--color-text-primary);
+      }
+      .main-nav.nav-solid .dropdown-toggle:hover {
+        background-color: var(--color-background-alt);
+        border-color: var(--color-border);
+      }
+
+      /* --- Toggle Styles for TRANSPARENT (Dark) Navbar --- */
+      .main-nav.nav-transparent .dropdown-toggle {
+        color: #ffffff;
+      }
+      .main-nav.nav-transparent .dropdown-toggle:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .dropdown-arrow {
+        stroke: currentColor;
+        transition: transform 0.2s ease-in-out;
+      }
+      .dropdown-arrow.rotated {
+        transform: rotate(180deg);
+      }
+
+      .dropdown-menu {
+        position: absolute;
+        background-color: var(--shop-bg);
+        color: var(--shop-text-gold);
+        /* top: calc(100% + 10px); */
+        right: 0;
+        border-radius: 8px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        min-width: 220px;
+        /* z-index: 2000; */
+        display: flex;
+        flex-direction: column;
+        padding: 0.5rem 0;
+        overflow: hidden; /* Ensures child border-radius is respected */
+      }
+
+      /* --- Menu Styles for SOLID (Light) Navbar --- */
+      .main-nav.nav-solid
+        .nav-user-actions
+        .user-dropdown
+        .dropdown-menu
+        .main-nav.nav-solid
+        .dropdown-item {
+        color: var(--color-text-primary);
+      }
+      .main-nav.nav-solid .dropdown-item:hover {
+        background-color: var(--color-background-alt);
+      }
+      .main-nav.nav-solid .dropdown-divider {
+        background-color: var(--color-border);
+      }
+
+      /* --- Menu Styles for TRANSPARENT (Dark) Navbar --- */
+      .main-nav.nav-transparent .dropdown-menu {
+        background-color: #1e1e28;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .main-nav.nav-transparent .dropdown-item {
+        color: #cccccc;
+      }
+      .main-nav.nav-transparent .dropdown-item:hover {
+        background-color: #2a2a3a;
+        color: white;
+      }
+      .main-nav.nav-transparent .dropdown-divider {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      /* --- General Dropdown Item Styles --- */
+      .dropdown-item {
+        padding: 0.75rem 1.5rem;
+        text-decoration: none;
+        transition: background-color 0.2s ease;
+        white-space: nowrap;
+        text-align: left;
+        color: var(--shop-text-gold);
+      }
+      .dropdown-item.logout {
+        color: var(--color-accent-red);
+      }
+
+      /* =================================================================
+   3. SHOP PAGE LAYOUT & FILTERS
+   ================================================================= */
+      .shop-theme .shop-page-container {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      @media (min-width: 992px) {
+        .shop-theme .shop-page-container {
+          grid-template-columns: 280px 1fr;
+        }
+      }
+      .shop-theme .filter-sidebar {
+        background-color: var(--shop-bg-alt);
+        border: 1px solid var(--shop-border);
+        padding: 1.5rem;
+        border-radius: 4px;
+      }
+      .shop-theme .filter-group h2,
+      .shop-theme .filter-group h3 {
+        font-size: 1.2rem;
+        color: var(--shop-text-primary);
+        border-bottom: 1px solid var(--shop-border);
+        padding-bottom: 0.75rem;
+        margin-bottom: 1rem;
+      }
+      .shop-theme .form-group label {
+        font-weight: 600;
+        color: var(--shop-text-primary);
+      }
+      .shop-theme .form-group input[type="text"],
+      .shop-theme .form-group input[type="number"] {
+        background-color: var(--shop-bg);
+        border: 1px solid #ced4da;
+        color: var(--shop-text-primary);
+      }
+      .shop-theme .checkbox-group label {
+        color: var(--shop-text-secondary);
+      }
+      .shop-theme .shop-header {
+        border-bottom: 1px solid var(--shop-border);
+        padding-bottom: 1rem;
+      }
+      .shop-theme .sort-by select {
+        background-color: var(--shop-bg-alt);
+        border-color: var(--shop-border);
+        color: var(--shop-text-primary);
+      }
+
+      /* =================================================================
+   4. PRODUCT CARD (Light Theme)
+   ================================================================= */
+      .shop-theme .product-card {
+        background-color: var(--shop-bg);
+        border: 1px solid var(--shop-border);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border-radius: 4px;
+      }
+      .shop-theme .product-card:hover {
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      }
+      .shop-theme .product-brand {
+        font-size: 0.8rem;
+        color: var(--shop-text-secondary);
+      }
+      .shop-theme .product-name {
+        color: var(--shop-text-primary);
+        font-weight: 500;
+        height: auto;
+        min-height: 2.5rem;
+      }
+      .shop-theme .price-container {
+        margin-top: 1rem;
+      }
+      .shop-theme .product-price.discount {
+        color: var(--shop-accent-red);
+        font-size: 1.25rem;
+      }
+      .shop-theme .product-price.original {
+        color: var(--shop-text-secondary);
+        font-size: 0.9rem;
+        margin-left: 0.5rem;
+        /* THE FIX: Add the line-through effect */
+        text-decoration: line-through;
+      }
+      .shop-theme .add-to-cart-btn {
+        background-color: transparent;
+        color: var(--shop-accent-green);
+        border: 2px solid var(--shop-accent-green);
+        font-weight: 600;
+        border-radius: 25px; /* Make it more pill-shaped */
+        padding: 0.6rem 1rem; /* Adjust padding */
+        width: 100%;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+      }
+      .shop-theme .add-to-cart-btn:hover {
+        background-color: var(--shop-accent-green);
+        color: white;
+      }
+      .shop-theme .quantity-stepper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center; /* Vertically center the items */
+        width: 100%;
+        border: 2px solid var(--shop-accent-green);
+        border-radius: 25px;
+        overflow: hidden; /* Ensures the child button corners are rounded */
+      }
+      .shop-theme .quantity-stepper button {
+        background-color: var(--shop-accent-green);
+        color: white;
+        border: none;
+        font-size: 1.2rem;
+        font-weight: bold;
+        cursor: pointer;
+        padding: 0.5rem 0; /* Adjust padding */
+        width: 40px;
+        height: 100%;
+        line-height: 1; /* Helps with vertical centering */
+      }
+      .shop-theme .quantity-stepper span {
+        color: var(--shop-text-primary);
+        font-weight: 600;
+        font-size: 1.1rem;
+      }
+      .shop-theme .stock-badge {
+        background-color: var(--shop-accent-green);
+        border-radius: 15px 0 15px 0;
+        font-weight: 500;
+      }
+      .shop-theme .product-card.out-of-stock .stock-badge {
+        background-color: var(--shop-text-secondary);
+      }
+
+      /* =================================================================
+   5. FLOATING CART ICON (Light Theme)
+   ================================================================= */
+      .floating-cart-link {
+        position: fixed;
+        bottom: 20px;
+        right: 30px;
+        background: var(--shop-accent-purple);
+        color: white;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 8px 20px rgba(106, 13, 173, 0.3);
+        z-index: 1001; /* Higher than navbar */
+        cursor: pointer;
+        text-decoration: none;
+        transition: transform 0.2s ease-in-out;
+      }
+      .floating-cart-link:hover {
+        transform: scale(1.1);
+      }
+      .floating-cart-link svg {
+        stroke: currentColor;
+        width: 24px;
+        height: 24px;
+      }
+      .cart-count {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background-color: var(--shop-accent-red);
+        color: white;
+        border: 2px solid white;
+        border-radius: 50%;
+        min-width: 22px;
+        height: 22px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 0.75rem;
+        font-weight: bold;
+      }
+
+      /* =================================================================
+   6. CART PAGE STYLING (Light Theme)
+   ================================================================= */
+      .shop-theme .cart-empty {
+        text-align: center;
+        padding: 4rem 2rem;
+        background-color: var(--shop-bg-alt);
+        border: 1px dashed var(--shop-border);
+        border-radius: 8px;
+      }
+      .shop-theme .cart-empty p {
+        font-size: 1.2rem;
+        color: var(--shop-text-secondary);
+        margin-bottom: 2rem;
+      }
+      .shop-theme .cart-container {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        align-items: start;
+      }
+      @media (min-width: 992px) {
+        .shop-theme .cart-container {
+          grid-template-columns: 2fr 1fr;
+        }
+      }
+      .shop-theme .cart-items-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+      .shop-theme .cart-item {
+        display: flex;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        background-color: var(--shop-bg);
+        border-radius: 8px;
+        border: 1px solid var(--shop-border);
+      }
+      .shop-theme .cart-item-image {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 5px;
+      }
+      .shop-theme .cart-item-details {
+        flex-grow: 1;
+      }
+      .shop-theme .cart-item-details h3 {
+        margin: 0 0 0.5rem 0;
+        color: var(--shop-text-primary);
+      }
+      .shop-theme .cart-item-details p {
+        margin: 0;
+        color: var(--shop-text-secondary);
+      }
+      .shop-theme .cart-item-price {
+        text-align: right;
+        color: var(--shop-text-primary);
+        font-weight: bold;
+      }
+      .shop-theme .remove-item-btn {
+        background: none;
+        border: none;
+        color: var(--shop-accent-red);
+        cursor: pointer;
+        font-size: 0.9rem;
+        padding: 0.5rem 0 0 0;
+        text-decoration: underline;
+      }
+      .shop-theme .cart-summary {
+        padding: 2rem;
+        background-color: var(--shop-bg-alt);
+        border-radius: 8px;
+        border: 1px solid var(--shop-border);
+        position: sticky;
+        top: 100px;
+      }
+      .shop-theme .cart-summary h2 {
+        margin-top: 0;
+      }
+      .shop-theme .summary-line {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        color: var(--shop-text-secondary);
+      }
+      .shop-theme .summary-line.total {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: var(--shop-text-primary);
+      }
+      .shop-theme .checkout-btn {
+        width: 100%;
+        padding: 1rem;
+        border: none;
+        border-radius: 5px;
+        background-color: var(--shop-accent-green);
+        color: white;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+      .shop-theme .checkout-btn:hover {
+        background-color: #087f5b;
+      }
+      .shop-theme .checkout-btn:disabled {
+        background-color: #adb5bd;
+        cursor: not-allowed;
+      }
+
+      /* =================================================================
+   7. PRODUCT DETAIL PAGE STYLING (Light Theme)
+   ================================================================= */
+      .shop-theme .product-detail-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        margin-top: 2rem;
+      }
+      @media (min-width: 768px) {
+        .shop-theme .product-detail-grid {
+          grid-template-columns: 1fr 1fr;
+          gap: 3rem;
+        }
+      }
+      .shop-theme .product-detail-image img {
+        width: 100%;
+        border-radius: 8px;
+        border: 1px solid var(--shop-border);
+      }
+      .shop-theme .product-detail-info h1 {
+        margin: 0.25rem 0 1rem 0;
+        font-size: 2.5rem;
+        color: var(--shop-text-primary);
+      }
+      .shop-theme .product-detail-info .product-brand {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--shop-text-secondary);
+      }
+      .shop-theme .product-price-large {
+        font-size: 2rem;
+        font-weight: 700; /* Bolder price */
+        color: var(--shop-text-primary);
+        margin: 1.5rem 0;
+      }
+      .shop-theme .product-price-large.discount {
+        color: var(--shop-accent-red);
+      }
+      .shop-theme .product-price-large.original {
+        font-size: 1.2rem;
+        font-weight: 400;
+        color: var(--shop-text-secondary); /* Ensure it's a lighter color */
+        margin-left: 0.75rem;
+        /* THE FIX: Add the line-through effect */
+        text-decoration: line-through;
+      }
+      .shop-theme .product-description {
+        line-height: 1.7;
+        color: var(--shop-text-secondary);
+        margin-bottom: 2rem;
+      }
+      .shop-theme .product-actions-detail {
+        margin-top: 2rem;
+        max-width: 300px; /* Constrain the width of the buttons */
+      }
+      .shop-theme .add-to-cart-btn-large {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid var(--shop-accent-green);
+        border-radius: 30px;
+        background-color: var(--shop-accent-green);
+        color: white;
+        font-size: 1.2rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .shop-theme .add-to-cart-btn-large:hover {
+        background-color: #218838;
+        border-color: #218838;
+      }
+      .shop-theme .quantity-stepper.large {
+        border-width: 2px;
+        border-radius: 30px;
+      }
+      .shop-theme .quantity-stepper.large button {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+      }
+      .shop-theme .quantity-stepper.large span {
+        font-size: 1.5rem;
+      }
+
+      /* =================================================================
+   8. SHOP FILTER SIDEBAR (Light Theme)
+   ================================================================= */
+
+      .shop-theme .filter-sidebar {
+        background-color: var(--shop-bg-alt); /* Light grey background */
+        border: 1px solid var(--shop-border);
+        border-radius: 4px;
+        padding: 1.5rem;
+        align-self: start; /* Prevents stretching */
+      }
+
+      .shop-theme .filter-sidebar h2 {
+        font-size: 1.5rem;
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        color: var(--shop-text-primary);
+      }
+
+      .shop-theme .filter-group {
+        margin-bottom: 2rem;
+      }
+
+      .shop-theme .filter-group h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--shop-text-secondary);
+        margin: 0 0 1rem 0;
+        border-bottom: 1px solid var(--shop-border);
+        padding-bottom: 0.75rem;
+      }
+
+      /* --- Search and Price Inputs --- */
+      .shop-theme .filter-group label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--shop-text-primary);
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+
+      .shop-theme .filter-group input[type="text"],
+      .shop-theme .filter-group input[type="number"] {
+        width: 100%;
+        padding: 0.75rem;
+        background-color: var(--shop-bg);
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        color: var(--shop-text-primary);
+        font-family: var(--shop-font);
+        font-size: 0.9rem;
+      }
+
+      .shop-theme .price-inputs {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      /* --- Custom Checkbox Styling --- */
+      .shop-theme .checkbox-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.75rem;
+      }
+
+      .shop-theme .checkbox-group label {
+        color: var(--shop-text-secondary);
+        margin-left: 0.75rem;
+        cursor: pointer;
+        font-weight: 400; /* Regular font weight for options */
+      }
+
+      /* Hide the default checkbox */
+      .shop-theme .checkbox-group input[type="checkbox"] {
+        display: none;
+      }
+
+      /* Create a custom checkbox appearance */
+      .shop-theme .checkbox-group label::before {
+        content: "";
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        border: 2px solid #ced4da;
+        border-radius: 3px;
+        margin-right: 0.5rem;
+        vertical-align: middle;
+        transition: all 0.2s;
+      }
+
+      /* Style the custom checkbox when it is checked */
+      .shop-theme
+        .checkbox-group
+        input[type="checkbox"]:checked
+        + label::before {
+        background-color: var(--shop-accent-purple);
+        border-color: var(--shop-accent-purple);
+        /* Add a checkmark using a background SVG */
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23fff' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26l2.974 2.99L8 2.193z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+    </style> -->
+  </head>
+  <body class="shop-theme">
+    
+    <!-- Include the navbar -->
+    <%- include('../partials/navbar', { isShop: true }) %>
+
+    <!-- This is where the page content will be injected -->
+    <%- body %>
+
+    <!-- Include the shared footer with all the Alpine.js components -->
+    <%- include('../partials/footer') %>
+
+    <!-- Modals and Toasts -->
+
+    <!-- The modal HTML is now correctly placed here -->
+    <div x-data="notificationModal" x-show="isOpen" @keydown.escape.window="close()" x-transition class="modal-backdrop" style="display: none;">
+        <div class="modal-content" @click.outside="close()">
+            <h3 x-text="title"></h3>
+            <p x-text="message"></p>
+            <button @click="close()" class="btn btn-primary">Close</button>
+        </div>
+    </div>
+    
+    <div
+      x-data="toast"
+      x-show="isVisible"
+      x-transition:enter-start="opacity-0 transform translate-x-full"
+      x-transition:enter-end="opacity-100 transform translate-x-0"
+      x-transition:leave-start="opacity-100 transform translate-x-0"
+      x-transition:leave-end="opacity-0 transform translate-x-full"
+      @click="close()"
+      class="toast-container"
+    >
+      <p x-text="message"></p>
+    </div>
+  </body>
+</html>

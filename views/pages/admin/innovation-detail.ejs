@@ -1,0 +1,62 @@
+<% layout('/layouts/app-layout') %>
+
+<div class="container mt-4" x-data="innovationDetail(<%= innovationId %>)" x-init="init()">
+    <div x-show="isLoading" class="text-center p-5">
+        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>
+    <div x-show="error" class="alert alert-danger" x-text="error"></div>
+
+    <template x-if="innovation">
+        <div>
+            <header class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h2 mb-0" x-text="innovation.title"></h1>
+                </div>
+                <a href="/admin/innovations" class="btn btn-outline-secondary">&larr; Back to All Innovations</a>
+            </header>
+
+            <div class="row g-4">
+                <!-- Left Column: Main Content -->
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header"><h5 class="mb-0">Full Description</h5></div>
+                        <div class="card-body">
+                            <!-- Using a <pre> tag preserves whitespace and line breaks -->
+                            <pre class="text-pre-wrap" x-text="innovation.submission_text"></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Metadata and Files -->
+                <div class="col-lg-4">
+                    <div class="card card-body bg-light mb-4">
+                        <h5 class="card-title">Submission Details</h5>
+                        <p class="mb-1"><strong>Submitted By:</strong> <span x-text="`${innovation.first_name} ${innovation.last_name}`"></span></p>
+                        <p class="mb-1"><strong>Contact Email:</strong> <span x-text="innovation.email"></span></p>
+                        <p class="mb-1"><strong>Phone:</strong> <span x-text="innovation.phone_number || 'N/A'"></span></p>
+                        <p class="mb-1"><strong>KingsChat:</strong> <span x-text="innovation.kingschat_username || 'N/A'"></span></p>
+                        <p class="mb-1"><strong>Date Submitted:</strong> <span x-text="formatDate(innovation.submitted_at)"></span></p>
+                        <p class="mb-0"><strong>Ministry Position:</strong> <span x-text="innovation.ministry_position || 'N/A'"></span></p>
+                    </div>
+
+                    <div class="card card-body bg-light" x-show="hasFiles()">
+                        <h5 class="card-title">Attached Files</h5>
+                        <ul class="list-group list-group-flush">
+                            <template x-if="filePaths.document">
+                                <li class="list-group-item bg-transparent"><a :href="`/${filePaths.document}`" target="_blank">Download Document</a></li>
+                            </template>
+                            <template x-if="filePaths.video">
+                                <li class="list-group-item bg-transparent"><a :href="`/${filePaths.video}`" target="_blank">Download Video</a></li>
+                            </template>
+                            <template x-if="filePaths.photos && filePaths.photos.length > 0">
+                                <template x-for="(photo, index) in filePaths.photos" :key="index">
+                                    <li class="list-group-item bg-transparent"><a :href="`/${photo}`" target="_blank" x-text="`Download Photo ${index + 1}`"></a></li>
+                                </template>
+                            </template>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+</div>

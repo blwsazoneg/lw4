@@ -1,0 +1,89 @@
+<% layout('/layouts/app-layout') %>
+
+<div class="container mt-4" x-data="adminDashboard" x-init="init()">
+    <header class="mb-4">
+        <h1 class="h2">Admin Dashboard</h1>
+        <p class="lead text-muted">Welcome, <%= user.firstName %>. Here is a summary of your platform's activity.</p>
+    </header>
+
+    <div x-show="isLoading" class="text-center p-5">
+        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>
+
+    <template x-if="stats">
+        <div>
+            <!-- Stats Cards -->
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4 mb-4">
+                <div class="col">
+                    <div class="card card-body text-center h-100 shadow-sm">
+                        <h6 class="text-muted mb-1">Total Revenue</h6>
+                        <p class="h3 mb-0" x-text="formatCurrency(stats.orderStats.totalRevenue)"></p>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card card-body text-center h-100 shadow-sm">
+                        <h6 class="text-muted mb-1">Total Orders</h6>
+                        <p class="h3 mb-0" x-text="stats.orderStats.totalOrders"></p>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card card-body text-center h-100 shadow-sm">
+                        <h6 class="text-muted mb-1">Orders Today</h6>
+                        <p class="h3 mb-0" x-text="stats.orderStats.ordersToday"></p>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card card-body text-center h-100 shadow-sm">
+                        <h6 class="text-muted mb-1">Total Users</h6>
+                        <p class="h3 mb-0" x-text="stats.userCounts.total"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Dashboard Grid -->
+            <div class="row g-4">
+                <!-- Left Side: Navigation Cards -->
+                <div class="col-lg-7">
+                    <div class="row row-cols-1 row-cols-md-2 g-4">
+                        <div class="col"><a href="/admin/products" class="card text-dark text-decoration-none h-100 shadow-sm dashboard-card"><div class="card-body"><h5>Manage Products</h5><p class="card-text text-muted">Add, edit, and delete products.</p></div></a></div>
+                        <div class="col"><a href="/admin/orders" class="card text-dark text-decoration-none h-100 shadow-sm dashboard-card"><div class="card-body"><h5>Manage Orders</h5><p class="card-text text-muted">View and update order statuses.</p></div></a></div>
+                        <div class="col"><a href="/admin/users" class="card text-dark text-decoration-none h-100 shadow-sm dashboard-card"><div class="card-body"><h5>Manage Users</h5><p class="card-text text-muted">View and manage user accounts.</p></div></a></div>
+                        <div class="col"><a href="/admin/innovations" class="card text-dark text-decoration-none h-100 shadow-sm dashboard-card"><div class="card-body"><h5>Manage Innovations</h5><p class="card-text text-muted">Review user-submitted ideas.</p></div></a></div>
+                        <div class="col"> <a href="/admin/brands" class="card text-dark text-decoration-none h-100 shadow-sm dashboard-card">
+        <div class="card-body"><h5>Manage Brands</h5><p class="card-text text-muted">Add or remove product brands.</p></div>
+    </a></div>
+                        <div class="col"> <a href="/admin/sectors" class="card text-dark text-decoration-none h-100 shadow-sm dashboard-card">
+        <div class="card-body"><h5>Manage Sectors</h5><p class="card-text text-muted">Add or remove product sectors.</p></div>
+    </a></div>
+                    </div>
+                </div>
+                <!-- Right Side: Recent Orders -->
+                <div class="col-lg-5">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header">
+                            <h5 class="mb-0">Recent Orders</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <tbody>
+                                        <template x-for="order in stats.recentOrders" :key="order.id">
+                                            <tr>
+                                                <td><a :href="`/admin/orders/${order.id}`" class="fw-bold text-dark" x-text="order.order_number.substring(0, 8) + '...'"></a></td>
+                                                <td class="text-muted" x-text="`${order.first_name} ${order.last_name}`"></td>
+                                                <td class="text-end" x-text="formatCurrency(order.total_amount)"></td>
+                                            </tr>
+                                        </template>
+                                        <template x-if="stats.recentOrders.length === 0">
+                                            <tr><td colspan="3" class="text-center text-muted p-3">No recent orders.</td></tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+</div>

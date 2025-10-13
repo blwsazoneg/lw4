@@ -5,35 +5,55 @@
   <head>
     <%- include('../partials/header') %>
 
-    <!-- DATA ISLAND for main pages -->
+        <link rel="stylesheet" href="/css/theme.css?v=1.0.1">
     <script>
       window.APP_DATA = {
-          user: <%- JSON.stringify(user || null) %>
+          user: <%- JSON.stringify(user || null) %>,
+          STRIPE_PUBLISHABLE_KEY: <%- JSON.stringify(STRIPE_PUBLISHABLE_KEY || null) %>
       };
     </script>
-    <!-- ADD THE STRIPE.JS SCRIPT -->
-    <script src="https://js.stripe.com/v3/"></script>
-  </head>
-  <body>
-    <%- include('../partials/navbar') %>
 
-    <!-- 
-        This is the SINGLE, CORRECT place where the content from your
-        page files (like create-profile.ejs) will be injected.
-        There should be no other includes or body tags here.
-    -->
+  </head>
+  <<body class="<% if (locals.solidNavbar) { %>has-solid-nav<% } %>">
+    
+    <%- include('../partials/navbar', { solidNavbar: locals.solidNavbar }) %>
+
+    <!-- <div x-data class="floating-cart-container">
+      <a href="/cart" class="floating-cart-link">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="9" cy="21" r="1"></circle>
+          <circle cx="20" cy="21" r="1"></circle>
+          <path
+            d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"
+          ></path>
+        </svg>
+        <span
+          x-show="$store.cart.count > 0"
+          x-text="$store.cart.count"
+          class="cart-count"
+        ></span>
+      </a>
+    </div> -->
+
     <%- body %> <%- include('../partials/footer') %>
 
-    <!-- =================================================== -->
-    <!-- NEW: Reusable Notification Modal                    -->
-    <!-- =================================================== -->
     <div
       x-data="notificationModal"
       x-show="isOpen"
       @keydown.escape.window="close()"
-      x-transition:enter="alpine-fade"
-      x-transition:leave="alpine-fade"
+      x-transition
       class="modal-backdrop"
+      style="display: none"
     >
       <div class="modal-content" @click.outside="close()">
         <h3 x-text="title"></h3>
@@ -41,7 +61,6 @@
         <button @click="close()" class="modal-close-btn">Close</button>
       </div>
     </div>
-
     <div
       x-data="toast"
       x-show="isVisible"
@@ -51,6 +70,7 @@
       x-transition:leave-end="opacity-0 transform translate-x-full"
       @click="close()"
       class="toast-container"
+      style="display: none"
     >
       <p x-text="message"></p>
     </div>

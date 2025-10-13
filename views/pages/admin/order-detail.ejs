@@ -1,0 +1,72 @@
+<% layout('/layouts/app-layout') %>
+
+<div class="container mt-4" x-data="orderDetail(<%= orderId %>)" x-init="init()">
+    <div x-show="isLoading" class="text-center p-5">
+        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>
+    <div x-show="error" class="alert alert-danger" x-text="error"></div>
+
+    <template x-if="order">
+        <div>
+            <header class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h2 mb-0">Order Details</h1>
+                    <p class="lead text-muted fs-6">Order #<span x-text="order.order_number"></span></p>
+                </div>
+                <a href="/admin/orders" class="btn btn-outline-secondary">&larr; Back to All Orders</a>
+            </header>
+
+            <div class="row g-4">
+                <!-- Left Column: Order & Customer Info -->
+                <div class="col-lg-4">
+                    <div class="card card-body bg-light mb-4">
+                        <h5 class="card-title">Order Information</h5>
+                        <p class="mb-1"><strong>Order Date:</strong> <span x-text="formatDate(order.created_at)"></span></p>
+                        <p class="mb-1"><strong>Order Total:</strong> <span x-text="formatCurrency(order.total_amount)"></span></p>
+                        <div class="d-flex align-items-center">
+                            <label for="status" class="form-label me-2 mb-0"><strong>Status:</strong></label>
+                            <select id="status" class="form-select form-select-sm" x-model="order.status" @change="updateStatus(order.id, $event.target.value)">
+                                <option value="Processing">Processing</option>
+                                <option value="Paid">Paid</option>
+                                <option value="Shipped">Shipped</option>
+                                <option value="Delivered">Delivered</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card card-body bg-light">
+                        <h5 class="card-title">Customer Information</h5>
+                        <p class="mb-1"><strong>Name:</strong> <span x-text="`${order.first_name} ${order.last_name}`"></span></p>
+                        <p class="mb-1"><strong>Email:</strong> <span x-text="order.email"></span></p>
+                        <p class="mb-1"><strong>Phone:</strong> <span x-text="order.phone_number || 'N/A'"></span></p>
+                        <p class="mb-0"><strong>KingsChat:</strong> <span x-text="order.kingschat_username || 'N/A'"></span></p>
+                    </div>
+                </div>
+
+                <!-- Right Column: Items in Order -->
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header"><h5 class="mb-0">Items in this Order</h5></div>
+                        <div class="card-body">
+                            <div class="list-group list-group-flush">
+                                <template x-for="(item, index) in order.items" :key="index">
+                                    <div class="list-group-item d-flex gap-3 py-3">
+                                        <img :src="item.image_url || '/images/placeholder.png'" alt="..." width="64" height="64" class="rounded">
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1" x-text="item.name || 'Product No Longer Available'"></h6>
+                                            <p class="mb-1 text-muted" x-text="`Quantity: ${item.quantity}`"></p>
+                                            <small class="text-muted" x-text="`Price each: ${formatCurrency(item.price_at_purchase)}`"></small>
+                                        </div>
+                                        <div class="text-end fw-bold">
+                                            <span x-text="formatCurrency(item.price_at_purchase * item.quantity)"></span>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+</div>

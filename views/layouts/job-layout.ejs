@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- STEP 1: Include the standard header partial -->
+    <%- include('../partials/header') %>
+
+    <!-- STEP 3: Include the dedicated stylesheet for the job theme -->
+    <!-- THE FIX: Load the main theme.css file FIRST -->
+    <link rel="stylesheet" href="/css/theme.css?v=1.0.3">
+
+    <!-- THEN, load the dedicated stylesheet for the job theme to override styles -->
+    <link rel="stylesheet" href="/css/job-theme.css?v=1.0.2">
+    
+    <!-- STEP 4: Create the Data Island for this layout -->
+    <script>
+      window.APP_DATA = {
+          user: <%- JSON.stringify(user || null) %>
+      };
+    </script>
+  </head>
+  <body class="job-theme has-solid-nav">
+    <!-- Include the navbar. It will be styled by both style.css and job-theme.css -->
+    <%- include('../partials/navbar', { solidNavbar: true, isShop: false }) %>
+
+    <%- body %>
+
+    <%- include('../partials/footer') %>
+
+    <!-- Modals and Toasts -->
+    <div x-data="notificationModal" x-show="isOpen" @keydown.escape.window="close()" x-transition class="modal-backdrop" style="display: none;">
+        <div class="modal-content" @click.outside="close()">
+            <h3 x-text="title"></h3>
+            <p x-text="message"></p>
+            <button @click="close()" class="btn btn-primary">Close</button>
+        </div>
+    </div>
+
+    <div
+      x-data="toast"
+      x-show="isVisible"
+      x-transition:enter-start="opacity-0 transform translate-x-full"
+      x-transition:enter-end="opacity-100 transform translate-x-0"
+      x-transition:leave-start="opacity-100 transform translate-x-0"
+      x-transition:leave-end="opacity-0 transform translate-x-full"
+      @click="close()"
+      class="toast-container"
+    >
+      <p x-text="message"></p>
+    </div>
+  </body>
+</html>

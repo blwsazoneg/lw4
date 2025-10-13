@@ -1,0 +1,80 @@
+<% layout('layouts/app-layout') %>
+
+<div class="container mt-4" x-data="applicantViewer(<%= jobId %>)" x-init="init()">
+    <header class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 mb-0">Applicants for: <span x-text="jobTitle">...</span></h1>
+            <p x-show="pagination.totalApplicants > 0" class="lead text-muted fs-6">
+                Showing <span x-text="pagination.currentPage"></span> of <span x-text="pagination.totalApplicants"></span>
+            </p>
+        </div>
+        <a href="/employers/dashboard" class="btn btn-outline-secondary">&larr; Back to Dashboard</a>
+    </header>
+
+    <div x-show="isLoading" class="text-center p-5">
+        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>
+
+    <div x-show="!isLoading">
+        <template x-if="applicants.length === 0">
+            <div class="alert alert-info">There are no applicants for this job yet.</div>
+        </template>
+
+        <!-- Applicant Card -->
+        <template x-for="applicant in applicants" :key="applicant.user_id">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-3">
+                        <img :src="applicant.avatar_url || '/images/default-avatar.png'" class="rounded-circle" width="60" height="60">
+                        <div>
+                            <h5 class="mb-0" x-text="`${applicant.first_name} ${applicant.last_name}`"></h5>
+                            <p class="mb-0 text-muted" x-text="applicant.headline || 'No headline provided'"></p>
+                        </div>
+                    </div>
+                    <small class="text-muted" x-text="`Applied on: ${formatDate(applicant.application_date)}`"></small>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-8">
+                            <div>
+                                <h6 class="fw-bold">Biography</h6>
+<p x-if="applicant.bio" class="applicant-bio" x-text="applicant.bio"></p>
+              <p x-if="!applicant.bio" class="text-muted fst-italic"></p>                            </div>
+                            <h6 class="fw-bold">Skills</h6>
+                            <div class="d-flex flex-wrap gap-2" x-show="applicant.skills && applicant.skills.length > 0">
+                                <template x-for="skill in applicant.skills"><span class="badge bg-secondary fw-normal" x-text="skill"></span></template>
+                            </div>
+                            <p class="text-muted" x-show="!applicant.skills || applicant.skills.length === 0">No skills listed.</p>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="p-3 bg-light rounded">
+                                <h6 class="fw-bold">Contact</h6>
+                                <p class="small mb-1"><strong>Email:</strong> <span x-text="applicant.email"></span></p>
+                                <p class="small mb-1"><strong>Phone:</strong> <span x-text="applicant.phone_number || 'N/A'"></span></p>
+                                <p class="small mb-1"><strong>KingsChat:</strong> <span x-text="applicant.kingschat_username || 'N/A'"></span></p>
+                                <hr>
+                                <h6 class="fw-bold">Ministry Details</h6>
+                                <p class="small mb-1"><strong>Zone:</strong> <span x-text="applicant.zone || 'N/A'"></span></p>
+                                <p class="small mb-1"><strong>Church:</strong> <span x-text="applicant.church || 'N/A'"></span></p>
+                                <p class="small mb-1"><strong>Position:</strong> <span x-text="applicant.ministry_position || 'N/A'"></span></p>
+                                <p class="small mb-0"><strong>Appointment Year:</strong> <span x-text="applicant.appointment_year || 'N/A'"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- Pagination Controls -->
+        <nav x-show="pagination.totalPages > 1" class="mt-4 d-flex justify-content-center">
+            <ul class="pagination">
+                <li class="page-item" :class="{ 'disabled': pagination.currentPage <= 1 }">
+                    <a class="page-link" href="#" @click.prevent="changePage(pagination.currentPage - 1)">Previous</a>
+                </li>
+                <li class="page-item" :class="{ 'disabled': pagination.currentPage >= pagination.totalPages }">
+                    <a class="page-link" href="#" @click.prevent="changePage(pagination.currentPage + 1)">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>

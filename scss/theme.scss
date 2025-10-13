@@ -1,0 +1,245 @@
+// ...existing code...
+// 1. Define custom values first
+$primary: #6a0dad;
+$secondary: #6c757d;
+$success: #0ca678;
+$info: #007bff;
+$warning: #ffc107;
+$danger: #dc3545;
+$light: #f8f9fa;
+$dark: #212529;
+
+$font-family-sans-serif-custom: "Poppins", -apple-system, BlinkMacSystemFont,
+  "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+$font-family-serif-custom: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+$headings-font-family: $font-family-serif-custom;
+
+// <-- add these two lines to fix the undefined variable error
+$body-bg: $light;
+$body-color: $dark;
+
+// 2. Import Bootstrap once and override variables via `with`.
+//    This is the recommended approach to avoid ordering problems.
+@use "../node_modules/bootstrap/scss/bootstrap" with (
+  // Colors
+  $primary: $primary,
+  $secondary: $secondary,
+  $success: $success,
+  $info: $info,
+  $warning: $warning,
+  $danger: $danger,
+  $light: $light,
+  $dark: $dark,
+
+  // Fonts
+  $font-family-sans-serif: $font-family-sans-serif-custom,
+  $font-family-base: $font-family-sans-serif-custom,
+  $headings-font-family: $font-family-serif-custom,
+
+  // Body
+  $body-bg: $light,
+  $body-color: $dark,
+  $link-color: $primary,
+
+  // --- THEME-SPECIFIC NAVBAR CUSTOMIZATIONS ---
+  $navbar-light-color: #6d5f3b,
+  $navbar-light-hover-color: #212529,
+  $navbar-light-brand-color: #6d5f3b,
+  $navbar-light-toggler-icon-bg:
+    url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='#6d5f3b' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e")
+);
+
+/* --- Main Homepage Styling (/home-main) --- */
+.hero-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40vh;
+  background: linear-gradient(to right, #2d2002, #c89b3f);
+  color: white;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero-section::before {
+  content: "Explore 4.0";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20vw;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.05);
+  z-index: 1;
+}
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+.hero-content h1 {
+  font-family: $headings-font-family;
+}
+.info-cards-section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  padding: 4rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+@media (min-width: 768px) {
+  .info-cards-section {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.info-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.card-icon-wrapper {
+  width: 100px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.card-icon {
+  max-width: 100%;
+  max-height: 100%;
+}
+.icon-red-bg {
+  background-color: #d40000;
+  border-radius: 50%;
+}
+.info-card h2 {
+  font-family: $headings-font-family;
+}
+.info-card p {
+  color: $secondary;
+}
+.card-btn {
+  display: inline-block;
+  padding: 0.8rem 2.5rem;
+  border-radius: 30px;
+  background: linear-gradient(to right, #2d2002, #c89b3f);
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* --- Floating Cart Icon --- */
+.floating-cart-link {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, $primary, darken($primary, 10%));
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 8px 20px rgba($primary, 0.4);
+  z-index: 1000;
+  text-decoration: none;
+  transition: transform 0.2s ease-in-out, box-shadow 0.3s ease;
+}
+.floating-cart-link:hover {
+  transform: scale(1.1);
+}
+.floating-cart-link svg {
+  stroke: currentColor;
+  width: 28px;
+  height: 28px;
+}
+.cart-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: $danger;
+  color: white;
+  border: 2px solid white;
+  border-radius: 50%;
+  min-width: 26px;
+  height: 26px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+/* --- Product Card Tweaks --- */
+.product-card .product-image {
+  height: 200px;
+  object-fit: cover;
+  background-color: #fff;
+}
+.product-card .card-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.5rem;
+}
+.product-card .price-discount {
+  font-size: 1.2rem;
+}
+.product-card .price-original {
+  font-size: 0.9rem;
+}
+.stock-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+.text-pre-wrap {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* --- Modal & Toast Overrides --- */
+.modal-backdrop {
+  backdrop-filter: blur(5px);
+}
+.toast-container {
+  z-index: 1090; // Ensure it's above modals
+}
+
+// ...existing code...
+/* Make navbar dropdowns behave as normal stacked menu items on small screens */
+@media (max-width: 991.98px) {
+  .navbar .dropdown-menu {
+    position: static !important; /* keep menu in document flow inside the collapse */
+    float: none !important;
+    min-width: 100% !important; /* full width of the collapsed area */
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+
+  .navbar .dropdown-menu .dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 1rem;
+    color: inherit;
+  }
+
+  /* visual separation for dropdown groups */
+  .navbar .dropdown-divider {
+    display: block;
+    height: 1px;
+    margin: 0.25rem 0;
+    background-color: rgba(0, 0, 0, 0.06);
+  }
+}

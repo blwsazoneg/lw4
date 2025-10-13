@@ -1,147 +1,273 @@
-<% layout('layouts/mainLayout') %>
+<% layout('layouts/app-layout') %>
+<!-- Place this right after the opening <body> tag in your layout files -->
 
-<div x-data>
-  <a href="/cart" class="nav-cart-link">
-    <!-- SVG Cart Icon -->
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    >
-      <circle cx="9" cy="21" r="1"></circle>
-      <circle cx="20" cy="21" r="1"></circle>
-      <path
-        d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"
-      ></path>
-    </svg>
-    <!-- Dynamic counter from the global cart store -->
-    <span
-      x-show="$store.cart.count > 0"
-      x-text="$store.cart.count"
-      class="cart-count"
-    ></span>
-  </a>
+<div x-data class="floating-cart-container">
+    <a href="/cart" class="floating-cart-link">
+        <!-- SVG Cart Icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+        </svg>
+        
+        <!-- 
+            Dynamic counter that reads from the global 'cart' store.
+            It only appears if the cart count is greater than 0.
+        -->
+        <span x-show="$store.cart.count > 0" x-text="$store.cart.count" class="cart-count"></span>
+    </a>
 </div>
 
+<div class="container mt-4" x-data="shop" x-init="init()">
+  
+  <div class="row g-4">
+    <!-- Column 1: Filter Sidebar -->
+    <div class="col-lg-3">
+      <aside class="p-3 bg-light border rounded">
+        <h2>Filters</h2>
+        <hr />
 
-<!-- Reusable Notification Modal -->
-<!-- <div
-  x-data="notificationModal"
-  x-show="isOpen"
-  @keydown.escape.window="close()"
-  x-transition
-  class="modal-backdrop"
-  style="display: none"
->
-  <div class="modal-content" @click.outside="close()">
-    <h3 x-text="title"></h3>
-    <p x-text="message"></p>
-    <button @click="close()" class="modal-close-btn">Close</button>
-  </div>
-</div> -->
+        <!-- Search Filter -->
+        <div class="mb-4">
+          <label for="search" class="form-label fw-bold">Search</label>
+          <input
+            type="text"
+            id="search"
+            class="form-control"
+            x-model.debounce.500ms="filters.searchQuery"
+            placeholder="Product or Brand..."
+          />
+        </div>
 
-<!-- Reusable Toast Notification Container -->
-<!-- <div
-  x-data="toast"
-  x-show="isVisible"
-  x-transition:enter-start="opacity-0 transform translate-x-full"
-  x-transition:enter-end="opacity-100 transform translate-x-0"
-  x-transition:leave-start="opacity-100 transform translate-x-0"
-  x-transition:leave-end="opacity-0 transform translate-x-full"
-  @click="close()"
-  class="toast-container"
-  style="display: none"
->
-  <p x-text="message"></p>
-</div> -->
+        <!-- Brand Filter -->
+        <div class="mb-4">
+          <h3 class="h5">Brands</h3>
+          <template x-for="brand in brands" :key="brand.id">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                :id="'brand_'+brand.id"
+                :value="brand.id"
+                x-model="filters.selectedBrands"
+              />
+              <label
+                class="form-check-label"
+                :for="'brand_'+brand.id"
+                x-text="brand.name"
+              ></label>
+            </div>
+          </template>
+        </div>
 
-<div class="container" x-data="shop" x-init="init()">
-  <div class="shop-header">
-    <h1>Our Products</h1>
-  </div>
-
-  <!-- NEW: Simplified Filter Controls -->
-  <div class="filter-controls">
-    <div class="form-group">
-      <label for="productSearch">Search by Product Name</label>
-      <input
-        type="text"
-        id="productSearch"
-        x-model="productSearch"
-        placeholder="e.g., Wireless Mouse"
-      />
-    </div>
-    <div class="form-group">
-      <label for="brandSearch">Search by Brand</label>
-      <input
-        type="text"
-        id="brandSearch"
-        x-model="brandSearch"
-        placeholder="e.g., Tech Gadgets Co."
-      />
-    </div>
-  </div>
-
-  <!-- Loading State -->
-  <div x-show="isLoading" class="loading"><p>Loading products...</p></div>
-
-  <!-- Main Content -->
-  <div x-show="!isLoading">
-    <!-- Product Grid uses the 'filteredProducts' computed property -->
-    <div class="product-grid">
-      <template x-for="product in filteredProducts" :key="product.id">
-        <div class="product-card">
-          <a :href="`/products/${product.id}`" class="product-link">
-            <img
-              :src="product.image_url || '/images/placeholder.png'"
-              alt="Product Image"
-              class="product-image"
+        <!-- Price Filter -->
+        <div>
+          <h3 class="h5">Price Range</h3>
+          <div class="d-flex align-items-center">
+            <input
+              type="number"
+              class="form-control"
+              x-model.debounce.500ms="filters.minPrice"
+              placeholder="Min"
+              aria-label="Min price"
             />
-          </a>
-          <div class="product-info">
-            <a :href="`/products/${product.id}`" class="product-link">
-              <p x-text="product.brand_name" class="product-brand"></p>
-              <h3 x-text="product.name" class="product-name"></h3>
-            </a>
-            <p x-text="formatCurrency(product.price)" class="product-price"></p>
-          </div>
-          <div class="product-actions">
-            <template x-if="!getCartItem(product.id)">
-              <button
-                @click="addToCart(product.id)"
-                class="add-to-cart-btn"
-                :disabled="isAddingToCart === product.id"
-              >
-                <span x-show="isAddingToCart !== product.id">Add to Cart</span>
-                <span x-show="isAddingToCart === product.id">Adding...</span>
-              </button>
-            </template>
-            <template x-if="getCartItem(product.id)">
-              <div class="quantity-stepper">
-                <button @click="updateQuantity(product.id, -1)">-</button>
-                <span x-text="getCartItem(product.id).quantity"></span>
-                <button @click="updateQuantity(product.id, 1)">+</button>
-              </div>
-            </template>
+            <span class="mx-2">-</span>
+            <input
+              type="number"
+              class="form-control"
+              x-model.debounce.500ms="filters.maxPrice"
+              placeholder="Max"
+              aria-label="Max price"
+            />
           </div>
         </div>
-      </template>
+      </aside>
     </div>
 
-    <!-- No Results Message -->
-    <div x-show="filteredProducts.length === 0" class="no-results">
-      <p>No products found matching your search.</p>
+    <!-- Column 2: Main Product Grid -->
+    <div class="col-lg-9">
+      <header class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h2 mb-0">Our Products</h1>
+        <!-- Sort By Dropdown -->
+        <div class="d-flex align-items-center">
+          <label for="sort" class="form-label me-2 mb-0">Sort by:</label>
+          <select id="sort" class="form-select w-auto" x-model="filters.sortBy">
+            <option value="created_at_desc">Newest</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+            <option value="name_asc">Name: A-Z</option>
+          </select>
+        </div>
+      </header>
+
+      <!-- Loading State -->
+      <div x-show="isLoading" class="text-center p-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+
+      <!-- Main Grid -->
+      <div x-show="!isLoading">
+        <!-- Product Grid -->
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+          <template x-for="product in paginatedProducts" :key="product.id">
+            <div class="col">
+              <div class="card h-100 product-card">
+                <a :href="`/products/${product.id}`">
+                  <img
+                    :src="product.image_url || '/images/placeholder.png'"
+                    class="card-img-top product-image"
+                    alt="..."
+                  />
+                  <!-- Stock Badge -->
+                  <div
+                    x-show="product.stock_quantity > 0"
+                    class="badge bg-success stock-badge"
+                  >
+                    In Stock
+                  </div>
+                  <div
+                    x-show="product.stock_quantity <= 0"
+                    class="badge bg-secondary stock-badge"
+                  >
+                    Out of Stock
+                  </div>
+                </a>
+                <div class="card-body d-flex flex-column">
+                  <p
+                    class="text-muted small mb-1"
+                    x-text="product.brand_name"
+                  ></p>
+                  <h5 class="card-title">
+                    <a
+                      :href="`/products/${product.id}`"
+                      class="text-dark text-decoration-none"
+                      x-text="product.name"
+                    ></a>
+                  </h5>
+
+                  <!-- Price Display -->
+                  <div class="mt-auto">
+                    <div class="price-container">
+                      <template
+                        x-if="product.discount_price && product.discount_price < product.price"
+                      >
+                        <div>
+                          <span
+                            class="price-discount text-danger fw-bold"
+                            x-text="formatCurrency(product.discount_price)"
+                          ></span>
+                          <span
+                            class="price-original text-muted text-decoration-line-through ms-2"
+                            x-text="formatCurrency(product.price)"
+                          ></span>
+                        </div>
+                      </template>
+                      <template
+                        x-if="!product.discount_price || product.discount_price >= product.price"
+                      >
+                        <span
+                          class="price-regular fw-bold"
+                          x-text="formatCurrency(product.price)"
+                        ></span>
+                      </template>
+                    </div>
+
+                    <!-- Add to Cart / Stepper -->
+                    <div class="mt-2">
+                      <template x-if="product.stock_quantity > 0">
+                        <div>
+                          <template x-if="!getCartItem(product.id)">
+                            <button
+                              @click="addToCart(product.id)"
+                              class="btn btn-outline-success w-100"
+                              :disabled="isAddingToCart === product.id"
+                            >
+                              <span x-show="isAddingToCart !== product.id"
+                                >Add to Cart</span
+                              >
+                              <span
+                                x-show="isAddingToCart === product.id"
+                                class="spinner-border spinner-border-sm"
+                                role="status"
+                                aria-hidden="true"
+                              ></span>
+                            </button>
+                          </template>
+                          <template x-if="getCartItem(product.id)">
+                            <div class="input-group">
+                              <button
+                                class="btn btn-success"
+                                @click="updateQuantity(product.id, -1)"
+                              >
+                                -
+                              </button>
+                              <input
+                                type="text"
+                                class="form-control text-center"
+                                :value="getCartItem(product.id).quantity"
+                                readonly
+                              />
+                              <button
+                                class="btn btn-success"
+                                @click="updateQuantity(product.id, 1)"
+                              >
+                                +
+                              </button>
+                            </div>
+                          </template>
+                        </div>
+                      </template>
+                      <template x-if="product.stock_quantity <= 0">
+                        <button class="btn btn-secondary w-100" disabled>
+                          Out of Stock
+                        </button>
+                      </template>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+
+        <!-- No Results Message -->
+        <div
+          x-show="!isLoading && filteredAndSortedProducts.length === 0"
+          class="alert alert-info mt-4"
+        >
+          No products found matching your criteria.
+        </div>
+
+        <!-- Pagination -->
+        <nav x-show="totalPages > 1" class="mt-4 d-flex justify-content-center">
+          <ul class="pagination">
+            <li class="page-item" :class="{ 'disabled': currentPage === 1 }">
+              <a
+                class="page-link"
+                href="#"
+                @click.prevent="changePage(currentPage - 1)"
+                >Previous</a
+              >
+            </li>
+            <li class="page-item active">
+              <a class="page-link" href="#" x-text="currentPage"></a>
+            </li>
+            <li
+              class="page-item"
+              :class="{ 'disabled': currentPage === totalPages }"
+            >
+              <a
+                class="page-link"
+                href="#"
+                @click.prevent="changePage(currentPage + 1)"
+                >Next</a
+              >
+            </li>
+          </ul>
+        </nav>
+      </div>
     </div>
   </div>
 </div>
-
-<!-- 
-    This page no longer needs a dedicated script block.
-    We will move the component definition back to the shared footer.
--->

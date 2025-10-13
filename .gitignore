@@ -1,3 +1,12 @@
 node_modules/
 .env
 .DS_Store
+public/css/theme.css
+public/libs/kingschat-bundle.js
+
+# User-uploaded content (should not be in the repo)
+uploads/
+
+# Optional OS-specific files
+.DS_Store
+Thumbs.db

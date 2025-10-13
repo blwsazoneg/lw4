@@ -1,0 +1,96 @@
+<% layout('/layouts/app-layout') %>
+
+<div class="container mt-4" x-data="orderList" x-init="init()">
+    <header class="mb-4">
+        <h1 class="h2">Manage Customer Orders</h1>
+        <p class="lead text-muted">View, filter, and track all orders placed on the platform.</p>
+    </header>
+
+    <!-- Filter and Search Controls -->
+    <div class="card card-body bg-light mb-4">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="search" class="form-label">Search by Order # or Customer</label>
+                <input type="text" id="search" class="form-control" x-model.debounce.500ms="filters.searchQuery" placeholder="e.g., e28c4ee7..., John Doe">
+            </div>
+            <div class="col-md-2">
+                <label for="status" class="form-label">Status</label>
+                <select id="status" class="form-select" x-model="filters.status">
+                    <option value="">All</option>
+                    <option value="Paid">Paid</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="startDate" class="form-label">Date From</label>
+                <input type="date" id="startDate" class="form-control" x-model="filters.startDate">
+            </div>
+            <div class="col-md-3">
+                <label for="endDate" class="form-label">Date To</label>
+                <input type="date" id="endDate" class="form-control" x-model="filters.endDate">
+            </div>
+        </div>
+    </div>
+
+    <div x-show="isLoading" class="text-center p-5">
+        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>
+
+    <div x-show="!isLoading">
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Order #</th>
+                                <th>Customer</th>
+                                <th>Date</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="order in orders" :key="order.id">
+                                <tr>
+                                    <td><a :href="`/admin/orders/${order.id}`" class="fw-bold text-dark" x-text="order.order_number.substring(0, 8) + '...'"></a></td>
+                                    <td>
+                                        <div x-text="`${order.first_name} ${order.last_name}`"></div>
+                                        <small class="text-muted" x-text="order.email"></small>
+                                    </td>
+                                    <td class="text-muted" x-text="formatDate(order.created_at)"></td>
+                                    <td x-text="formatCurrency(order.total_amount)"></td>
+                                    <td>
+                                        <select class="form-select form-select-sm w-auto" x-model="order.status" @change="updateStatus(order.id, $event.target.value)">
+                                            <option value="Processing">Processing</option>
+                                            <option value="Paid">Paid</option>
+                                            <option value="Shipped">Shipped</option>
+                                            <option value="Delivered">Delivered</option>
+                                            <option value="Cancelled">Cancelled</option>
+                                        </select>
+                                    </td>
+                                    <td class="text-end">
+                                        <a :href="`/admin/orders/${order.id}`" class="btn btn-sm btn-outline-primary">View Details</a>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <nav x-show="pagination.totalPages > 1" class="mt-4 d-flex justify-content-center">
+            <ul class="pagination">
+                <li class="page-item" :class="{ 'disabled': pagination.currentPage <= 1 }"><a class="page-link" href="#" @click.prevent="changePage(pagination.currentPage - 1)">Previous</a></li>
+                <li class="page-item active"><a class="page-link" href="#" x-text="pagination.currentPage"></a></li>
+                <li class="page-item" :class="{ 'disabled': pagination.currentPage >= pagination.totalPages }"><a class="page-link" href="#" @click.prevent="changePage(pagination.currentPage + 1)">Next</a></li>
+            </ul>
+        </nav>
+    </div>
+</div>

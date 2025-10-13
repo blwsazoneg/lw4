@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/header') %>
+    
+    <!-- THE ONLY STYLESHEET FOR THE INTRO -->
+    <link rel="stylesheet" href="/css/theme.css?v=1.0.3">
+        <!-- Inline styles specific to the intro sequence -->
+    <style>
+        body { background-color: #000; }
+
+              .alpine-fade-slow {
+        transition: opacity 1.5s ease-in-out;
+      }
+      .cinema-container-video {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100vw;
+        height: 100vh;
+        background-color: #000;
+        overflow: hidden;
+      }
+      .video-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 100;
+      }
+      .video-overlay video {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: auto;
+        z-index: -1;
+      }
+
+  .landing-container {
+            display: flex; justify-content: center; align-items: center;
+            width: 100vw; height: 100vh; overflow: hidden; position: relative;
+            background: radial-gradient(ellipse 80% 70% at 50% 50%, #4a3703 0%, #000000 100%);
+            color: white; font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+        }
+        .blob-container { position: absolute; width: 100%; height: 100%; filter: blur(50px); }
+        .blob { position: absolute; border-radius: 50%; opacity: 0.4; mix-blend-mode: screen; }
+        .blob-1 { width: 450px; height: 450px; background: #FFC300; animation: moveBlob1 22s infinite alternate; }
+        .blob-2 { width: 350px; height: 350px; background: #D97706; animation: moveBlob2 28s infinite alternate; }
+        .blob-3 { width: 280px; height: 280px; background: #FFF8E1; animation: moveBlob3 18s infinite alternate; }
+        @keyframes moveBlob1 { from { transform: translate(10vw, 20vh) rotate(-90deg) scale(1); } to { transform: translate(60vw, 75vh) rotate(90deg) scale(1.2); } }
+        @keyframes moveBlob2 { from { transform: translate(80vw, 15vh) rotate(0deg) scale(1.1); } to { transform: translate(15vw, 65vh) rotate(180deg) scale(0.9); } }
+        @keyframes moveBlob3 { from { transform: translate(40vw, 80vh) rotate(45deg) scale(0.8); } to { transform: translate(75vw, 10vh) rotate(-45deg) scale(1.1); } }
+        .landing-content { position: relative; z-index: 10; text-align: center; }
+        .welcome-text {
+            font-size: 3.5rem; font-weight: 300; color: #ffffff;
+            text-shadow: 0 2px 15px rgba(0, 0, 0, 0.5);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        @media (min-width: 768px) { .welcome-text { font-size: 5rem; } }
+        .welcome-text-transition { transition: opacity 1s ease-in-out, transform 1s ease-in-out; }
+        .slide-fade-enter-from { opacity: 0; transform: translateY(40px); }
+        .slide-fade-enter-to { opacity: 1; transform: translateY(0); }
+        .landing-content-wrapper { transition: opacity 1s ease-in-out; opacity: 1; }
+        .landing-content-wrapper.fade-out { opacity: 0; }
+        .explore-btn, .auth-btn { text-decoration: none; font-family: -apple-system, sans-serif; transition: all 0.3s ease; }
+        .explore-btn {
+            position: absolute; bottom: -30vh; left: 50%; transform: translateX(-50%);
+            padding: 0.8rem 2.5rem; border-radius: 30px; background-color: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(5px);
+            color: white; font-weight: 500; letter-spacing: 1px;
+        }
+        .explore-btn:hover { background-color: rgba(255, 255, 255, 1); color: black; }
+        .top-right-buttons { position: absolute; top: 2rem; right: 2rem; z-index: 10; display: flex; gap: 1rem; }
+        .auth-btn {
+            padding: 0.7rem 1.8rem; border-radius: 30px; background-color: rgba(255, 255, 255, 0.95);
+            color: black; font-weight: 600; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .auth-btn:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); }
+    </style>
+</head>
+<body>
+    <!-- No navbar here -->
+    <%- body %>
+    <!-- Include the shared footer with all the Alpine components -->
+    <%- include('../partials/footer') %>
+</body>
+</html>

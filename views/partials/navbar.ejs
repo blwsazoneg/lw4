@@ -1,43 +1,61 @@
 <!-- views/partials/navbar.ejs -->
 
-<!-- 
-    The navbar is now an Alpine.js component.
-    - x-data="navbar": Initializes the component.
-    - :class="{ 'menu-open': isMenuOpen }": Dynamically adds a class when the menu is open.
--->
-<nav class="main-nav" x-data="navbar">
-  <div class="nav-header">
-    <div class="nav-brand">
-      <a href="/">Loveworld 4.0</a>
-    </div>
+<%
+    // Determine the correct Bootstrap theme classes
+    let navThemeClasses = 'navbar-light bg-light'; // Default to the light theme
+    if (!locals.solidNavbar) {
+        navThemeClasses = 'navbar-dark'; // Use dark theme for transparent intro navbars
+    }
+%>
 
-    <!-- NEW: Hamburger Menu Toggle Button -->
-    <!-- This button will only be visible on mobile -->
-    <button class="nav-toggle" @click="toggleMenu()">
-      <span class="hamburger-line"></span>
-      <span class="hamburger-line"></span>
-      <span class="hamburger-line"></span>
-    </button>
-  </div>
+<nav class="navbar navbar-expand-lg <%= navThemeClasses %>">
+    <div class="container-fluid">
+        <!-- Brand/Logo -->
+        <a class="navbar-brand" href="/">LW4.0</a>
 
-  <!-- NEW: Collapsible Menu Container -->
-  <!-- This div wraps all the links that will be hidden on mobile -->
-  <div class="nav-menu" x-show="isMenuOpen" x-transition>
-    <div class="nav-links">
-      <a href="/shop">Shop</a>
-      <a href="/jobs">Job Board</a>
-      <a href="/innovate">Innovate</a>
+        <!-- Hamburger Toggle Button (Bootstrap's standard button) -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbarMenu" aria-controls="mainNavbarMenu" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Collapsible Menu Content -->
+        <div class="collapse navbar-collapse" id="mainNavbarMenu">
+            
+            <!-- Main Links (Centered on Desktop) -->
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link" href="/shop">Shop</a></li>
+                <li class="nav-item"><a class="nav-link" href="/jobs">Job Board</a></li>
+                <li class="nav-item"><a class="nav-link" href="/innovate">Innovate</a></li>
+                <!-- Add other links like "Discover", "Placements" here if needed -->
+            </ul>
+
+            <!-- User Actions (Aligned to the right) -->
+            <ul class="navbar-nav ms-auto">
+                <% if (locals.user) { %>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarUserDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Welcome, <%= locals.user.firstName %>!
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarUserDropdown">
+                            <% if (locals.user.role === 'admin') { %>
+                                <li><a class="dropdown-item" href="/admin">Admin Panel</a></li>
+                            <% } %>
+                            <% if (locals.user.role === 'employer' || locals.user.role === 'admin') { %>
+                                <li><a class="dropdown-item" href="/employers/dashboard">Employer Dashboard</a></li>
+                            <% } %>
+                            <li><a class="dropdown-item" href="/orders">My Orders</a></li>
+                            <li><a class="dropdown-item" href="/profile/create">My Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="/api/auth/logout">Logout</a></li>
+                        </ul>
+                    </li>
+                <% } else { %>
+                    <li class="nav-item">
+                        <!-- We still use Alpine for the login click to prevent a page reload -->
+                        <a class="nav-link" href="#" @click.prevent="$store.auth.login()"></a>
+                    </li>
+                <% } %>
+            </ul>
+        </div>
     </div>
-    <div class="nav-user-actions">
-      <% if (user) { %>
-      <span class="nav-welcome">Welcome, <%= user.firstName %>!</span>
-      <a href="/profile/create" class="nav-profile-btn">My Profile</a>
-      <a href="/api/auth/logout" class="nav-logout-btn">Logout</a>
-      <% } else { %>
-      <div x-data="kingsChatLogin">
-        <a @click="handleLogin()" class="kc-web-sdk-btn-s"></a>
-      </div>
-      <% } %>
-    </div>
-  </div>
 </nav>
